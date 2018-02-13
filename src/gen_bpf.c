@@ -1208,6 +1208,26 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
 	return blk_s;
 }
 
+#define SYSCALLS_PER_NODE		(4)
+static int get_bintree_levels(unsigned int syscall_cnt)
+{
+	int i = 0, level, next_level;
+
+	if (syscall_cnt <= SYSCALLS_PER_NODE)
+		return 0;
+
+	while(true) {
+		level = 1 << (i + 1);
+		next_level = 1 << (i + 2);
+
+		if (syscall_cnt > level && syscall_cnt <= next_level)
+			return i;
+
+		i++;
+	}
+
+}
+
 /**
  * Generate the BPF instruction blocks for a given filter/architecture
  * @param state the BPF state
@@ -1224,24 +1244,26 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 				     const struct db_filter *db,
 				     const struct db_filter *db_secondary)
 {
-	int rc;
-	unsigned int blk_cnt = 0;
+	int rc, level, i, j;
+	unsigned int blk_cnt = 0, syscall_cnt = 0, bintree_levels;
 	bool acc_reset;
 	struct bpf_instr instr;
 	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter, *s_iter_b;
-	struct bpf_blk *b_head = NULL, *b_tail = NULL, *b_iter, *b_new;
+	struct bpf_blk *b_head = NULL, *b_tail = NULL, *b_iter, *b_new,
+		       *b_bintree;
 
 	state->arch = db->arch;
 
 	/* sort the syscall list */
 	db_list_foreach(s_iter, db->syscalls) {
+		syscall_cnt++;
 		if (s_head != NULL) {
 			s_iter_b = s_head;
 			while ((s_iter_b->pri_nxt != NULL) &&
-			       (s_iter->priority <= s_iter_b->priority))
+			       (s_iter->num <= s_iter_b->num))
 				s_iter_b = s_iter_b->pri_nxt;
 
-			if (s_iter->priority > s_iter_b->priority) {
+			if (s_iter->num > s_iter_b->num) {
 				s_iter->pri_prv = s_iter_b->pri_prv;
 				s_iter->pri_nxt = s_iter_b;
 				if (s_iter_b == s_head) {
@@ -1269,10 +1291,10 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 			if (s_head != NULL) {
 				s_iter_b = s_head;
 				while ((s_iter_b->pri_nxt != NULL) &&
-				       (s_iter->priority <= s_iter_b->priority))
+				       (s_iter->num <= s_iter_b->num))
 					s_iter_b = s_iter_b->pri_nxt;
 
-				if (s_iter->priority > s_iter_b->priority) {
+				if (s_iter->num > s_iter_b->num) {
 					s_iter->pri_prv = s_iter_b->pri_prv;
 					s_iter->pri_nxt = s_iter_b;
 					if (s_iter_b == s_head) {
@@ -1299,6 +1321,9 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		}
 	}
 
+	bintree_levels = get_bintree_levels(syscall_cnt);
+	syscall_cnt = 0;
+
 	if ((state->arch->token == SCMP_ARCH_X86_64 ||
 	     state->arch->token == SCMP_ARCH_X32) && (db_secondary == NULL))
 		acc_reset = false;
@@ -1307,6 +1332,9 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 
 	/* create the syscall filters and add them to block list group */
 	for (s_iter = s_tail; s_iter != NULL; s_iter = s_iter->pri_prv) {
+		uint64_t bintree_hashes[bintree_levels];
+		unsigned int bintree_syscalls[bintree_levels];
+
 		if (!s_iter->valid)
 			continue;
 
@@ -1333,6 +1361,51 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		if (b_tail->next != NULL)
 			b_tail = b_tail->next;
 		blk_cnt++;
+		syscall_cnt++;
+
+		b_bintree = NULL;
+
+		/* build the binary tree if and else logic */
+		for (i = bintree_levels - 1; i >= 0; i--) {
+			level = 1 << (i + 2);
+
+			if ((syscall_cnt % level) == 0) {
+				/* save the "if greater than" syscall num */
+				bintree_syscalls[i] = s_iter->num;
+				/* save the hash for the jf case */
+				bintree_hashes[i] = b_new->hash;
+
+				for (j = 0; j < i; j++) {
+					_BPF_INSTR(instr,
+						_BPF_OP(state->arch, BPF_JMP + BPF_JGT),
+						_BPF_JMP_NO,
+						_BPF_JMP_NO,
+						_BPF_K(state->arch, bintree_syscalls[j]));
+					instr.jt = _BPF_JMP_HSH(b_bintree == NULL ?
+							b_new->hash : b_bintree->hash);
+					instr.jf = _BPF_JMP_HSH(bintree_hashes[j]);
+
+					b_bintree = _blk_append(state, NULL, &instr);
+					if (b_bintree == NULL)
+						goto arch_failure;
+					b_bintree->next = b_head;
+					if (b_head != NULL)
+						b_head->prev = b_bintree;
+					b_head = b_bintree;
+
+					rc = _hsh_add(state, &b_bintree, 1);
+					if (rc < 0)
+						goto arch_failure;
+				}
+				if (b_bintree != NULL)
+					/* this is the last if in this "block".
+					 * save it off so the next binary tree
+					 * if can "else" to it.
+					 */
+					bintree_hashes[j] = b_bintree->hash;
+				break;
+			}
+		}
 	}
 
 	/* additional ABI filtering */
