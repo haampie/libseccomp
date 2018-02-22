@@ -1225,7 +1225,6 @@ static int get_bintree_levels(unsigned int syscall_cnt)
 
 		i++;
 	}
-
 }
 
 /**
