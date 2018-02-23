@@ -1250,6 +1250,8 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter, *s_iter_b;
 	struct bpf_blk *b_head = NULL, *b_tail = NULL, *b_iter, *b_new,
 		       *b_bintree;
+	uint64_t *bintree_hashes = NULL;
+	unsigned int *bintree_syscalls = NULL;
 
 	state->arch = db->arch;
 
@@ -1323,6 +1325,17 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	bintree_levels = get_bintree_levels(syscall_cnt);
 	syscall_cnt = 0;
 
+	if (bintree_levels > 0) {
+		bintree_hashes = zmalloc(sizeof(uint64_t) * bintree_levels);
+		if (bintree_hashes == NULL)
+			goto arch_failure;
+
+		bintree_syscalls = zmalloc(sizeof(unsigned int) *
+					   bintree_levels);
+		if (bintree_syscalls == NULL)
+			goto arch_failure;
+	}
+
 	if ((state->arch->token == SCMP_ARCH_X86_64 ||
 	     state->arch->token == SCMP_ARCH_X32) && (db_secondary == NULL))
 		acc_reset = false;
@@ -1331,9 +1344,6 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 
 	/* create the syscall filters and add them to block list group */
 	for (s_iter = s_tail; s_iter != NULL; s_iter = s_iter->pri_prv) {
-		uint64_t bintree_hashes[bintree_levels];
-		unsigned int bintree_syscalls[bintree_levels];
-
 		if (!s_iter->valid)
 			continue;
 
@@ -1500,6 +1510,11 @@ arch_failure:
 	/* NOTE: we do the cleanup here and not just return an error as all of
 	 * the instruction blocks may not be added to the hash table when we
 	 * hit an error */
+	if (bintree_hashes != NULL)
+		free(bintree_hashes);
+	if (bintree_syscalls != NULL)
+		free(bintree_syscalls);
+
 	state->arch = NULL;
 	b_iter = b_head;
 	while (b_iter != NULL) {
