@@ -21,8 +21,8 @@
 
 #include <errno.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -1209,22 +1209,23 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
 }
 
 #define SYSCALLS_PER_NODE		(4)
+#define MIN_SYSCALLS_TO_USE_BINTREE	(16)
+#define INVALID_HSH			(UINT64_MAX)
+#define INVALID_SYSCALL			(UINT_MAX)
 static int get_bintree_levels(unsigned int syscall_cnt)
 {
-	int i = 0, level, next_level;
+	unsigned int i = 0, max_level;
 
-	if (syscall_cnt <= SYSCALLS_PER_NODE)
+	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
+		/* Only use a binary tree if there are a lot of syscalls */
 		return 0;
 
-	while(true) {
-		level = 1 << (i + 1);
-		next_level = 1 << (i + 2);
-
-		if (syscall_cnt > level && syscall_cnt <= next_level)
-			return i;
-
+	do {
+		max_level = SYSCALLS_PER_NODE << i;
 		i++;
-	}
+	} while(max_level < syscall_cnt);
+
+	return i;
 }
 
 /**
@@ -1244,7 +1245,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 				     const struct db_filter *db_secondary)
 {
 	int rc, level, i, j;
-	unsigned int blk_cnt = 0, syscall_cnt = 0, bintree_levels;
+	unsigned int blk_cnt = 0, syscall_cnt = 0, bintree_levels, empty_cnt;
 	bool acc_reset;
 	struct bpf_instr instr;
 	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter, *s_iter_b;
@@ -1289,6 +1290,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	}
 	if (db_secondary != NULL) {
 		db_list_foreach(s_iter, db_secondary->syscalls) {
+			syscall_cnt++;
 			if (s_head != NULL) {
 				s_iter_b = s_head;
 				while ((s_iter_b->pri_nxt != NULL) &&
@@ -1323,6 +1325,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	}
 
 	bintree_levels = get_bintree_levels(syscall_cnt);
+	empty_cnt = (SYSCALLS_PER_NODE << (bintree_levels - 1)) - syscall_cnt;
 	syscall_cnt = 0;
 
 	if (bintree_levels > 0) {
@@ -1334,6 +1337,11 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 					   bintree_levels);
 		if (bintree_syscalls == NULL)
 			goto arch_failure;
+
+		for (i = 0; i < bintree_levels; i++) {
+			bintree_syscalls[i] = INVALID_SYSCALL;
+			bintree_hashes[i]   = INVALID_HSH;
+		}
 	}
 
 	if ((state->arch->token == SCMP_ARCH_X86_64 ||
@@ -1341,6 +1349,12 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		acc_reset = false;
 	else
 		acc_reset = true;
+
+	if (bintree_levels != 0)
+		/* The accumulator is reset when the first bintree "if" is
+		 * generated.
+		 */
+		acc_reset = false;
 
 	/* create the syscall filters and add them to block list group */
 	for (s_iter = s_tail; s_iter != NULL; s_iter = s_iter->pri_prv) {
@@ -1375,16 +1389,24 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		b_bintree = NULL;
 
 		/* build the binary tree if and else logic */
-		for (i = bintree_levels - 1; i >= 0; i--) {
-			level = 1 << (i + 2);
+		for (i = bintree_levels - 1; i > 0; i--) {
+			level = SYSCALLS_PER_NODE << i;
 
-			if ((syscall_cnt % level) == 0) {
+			if (((syscall_cnt + empty_cnt) % level) == 0) {
 				/* save the "if greater than" syscall num */
 				bintree_syscalls[i] = s_iter->num;
 				/* save the hash for the jf case */
 				bintree_hashes[i] = b_new->hash;
 
 				for (j = 0; j < i; j++) {
+					if (bintree_syscalls[j] == INVALID_SYSCALL ||
+					    bintree_hashes[j] == INVALID_HSH)
+						/* we are near the end of the binary
+						 * tree and the jump-to location is
+						 * not valid.  skip this if-else
+						 */
+						continue;
+
 					_BPF_INSTR(instr,
 						_BPF_OP(state->arch, BPF_JMP + BPF_JGT),
 						_BPF_JMP_NO,
@@ -1406,6 +1428,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 					if (rc < 0)
 						goto arch_failure;
 				}
+
 				if (b_bintree != NULL)
 					/* this is the last if in this "block".
 					 * save it off so the next binary tree
@@ -1415,6 +1438,26 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 				break;
 			}
 		}
+	}
+
+	if (bintree_levels > 0) {
+		_BPF_INSTR(instr, _BPF_OP(state->arch, BPF_LD + BPF_ABS),
+			   _BPF_JMP_NO, _BPF_JMP_NO,
+			   _BPF_SYSCALL(state->arch));
+		b_bintree = _blk_append(state, NULL, &instr);
+		if (b_bintree == NULL)
+			goto arch_failure;
+		/* we've loaded the syscall ourselves */
+		b_bintree->acc_start = _ACC_STATE_UNDEF;
+		b_bintree->acc_end = _ACC_STATE_OFFSET(_BPF_OFFSET_SYSCALL);
+		b_bintree->next = b_head;
+		if (b_head != NULL)
+			b_head->prev = b_bintree;
+		b_head = b_bintree;
+
+		rc = _hsh_add(state, &b_bintree, 1);
+		if (rc < 0)
+			goto arch_failure;
 	}
 
 	/* additional ABI filtering */
