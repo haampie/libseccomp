@@ -369,21 +369,26 @@ static int _gen_pfc_arch(const struct db_filter_col *col,
 					 * any more if-elses.
 					 */
 					continue;
-				indent = bintree_levels - i;
 				_indent(fds, indent);
 				fprintf(fds, "if ($syscall > %u)\n", lookahead_num);
+				indent++;
 			} else if ((syscall_cnt % (level / 2)) == 0) {
 				lookahead_num = p_iter->sys->num;
-				indent = bintree_levels - i;
-				_indent(fds, indent);
+				_indent(fds, indent - 1);
 				fprintf(fds, "else # ($syscall <= %u)\n",
 					p_iter->sys->num);
 			}
+
 		}
 
-		_gen_pfc_syscall(db->arch, p_iter->sys, fds, indent + 1);
+		_gen_pfc_syscall(db->arch, p_iter->sys, fds, indent);
 		syscall_cnt++;
 		p_iter = p_iter->next;
+
+		/* undo the indentations as the else statements complete */
+		for (i = 0; i < bintree_levels; i++)
+			if (syscall_cnt % ((SYSCALLS_PER_NODE * 2) << i) == 0)
+				indent--;
 	}
 	_indent(fds, 1);
 	fprintf(fds, "# default action\n");
