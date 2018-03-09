@@ -1245,7 +1245,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 				     const struct db_filter *db_secondary)
 {
 	int rc, level, i, j;
-	unsigned int blk_cnt = 0, syscall_cnt = 0, bintree_levels, empty_cnt;
+	unsigned int blk_cnt = 0, syscall_cnt = 0, bintree_levels, empty_cnt = 0;
 	bool acc_reset;
 	struct bpf_instr instr;
 	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter, *s_iter_b;
@@ -1325,10 +1325,12 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	}
 
 	bintree_levels = get_bintree_levels(syscall_cnt);
-	empty_cnt = (SYSCALLS_PER_NODE << (bintree_levels - 1)) - syscall_cnt;
 	syscall_cnt = 0;
 
 	if (bintree_levels > 0) {
+		empty_cnt = ((unsigned int)SYSCALLS_PER_NODE <<
+			     (bintree_levels - 1)) - syscall_cnt;
+
 		bintree_hashes = zmalloc(sizeof(uint64_t) * bintree_levels);
 		if (bintree_hashes == NULL)
 			goto arch_failure;
