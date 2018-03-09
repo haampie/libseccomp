@@ -1546,6 +1546,11 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	if (rc < 0)
 		goto arch_failure;
 
+	if (bintree_hashes != NULL)
+		free(bintree_hashes);
+	if (bintree_syscalls != NULL)
+		free(bintree_syscalls);
+
 	state->arch = NULL;
 	return b_head;
 
