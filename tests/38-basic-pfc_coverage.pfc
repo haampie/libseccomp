@@ -71,9 +71,6 @@ if ($arch == 1073741827)
   # filter for syscall "open" (5) [priority: 65535]
   if ($syscall == 5)
     action KILL;
-  # filter for syscall "exit" (1) [priority: 65535]
-  if ($syscall == 1)
-    action TRACE(1);
   # filter for syscall "write" (4) [priority: 65532]
   if ($syscall == 4)
     if ($a0 == 0)
@@ -90,6 +87,9 @@ if ($arch == 1073741827)
         if ($a2 > 2)
           if ($a3 & 0x0000000f == 3)
             action KILL;
+  # filter for syscall "exit" (1) [priority: 65535]
+  if ($syscall == 1)
+    action TRACE(1);
   # default action
   action ALLOW;
 # invalid architecture action

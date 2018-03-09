@@ -308,16 +308,6 @@ static int _gen_pfc_arch(const struct db_filter_col *col,
 	struct db_sys_list *s_iter;
 	struct pfc_sys_list *p_iter = NULL, *p_new, *p_head = NULL, *p_prev;
 
-#if 1
-	/* major hack, dude */
-	i = 0;
-	db_list_foreach(s_iter, db->syscalls) {
-		s_iter->num = i;
-		i++;
-	}
-	i = 0;
-#endif
-
 	/* sort the syscall list */
 	db_list_foreach(s_iter, db->syscalls) {
 		syscall_cnt++;
@@ -347,6 +337,7 @@ static int _gen_pfc_arch(const struct db_filter_col *col,
 	}
 
 	bintree_levels = get_bintree_levels(syscall_cnt);
+	fprintf(stdout, "PFC bintree levels = %d\n", bintree_levels);
 	syscall_cnt = 0;
 
 	fprintf(fds, "# filter for arch %s (%u)\n",
