@@ -337,7 +337,6 @@ static int _gen_pfc_arch(const struct db_filter_col *col,
 	}
 
 	bintree_levels = get_bintree_levels(syscall_cnt);
-	fprintf(stdout, "PFC bintree levels = %d\n", bintree_levels);
 	syscall_cnt = 0;
 
 	fprintf(fds, "# filter for arch %s (%u)\n",

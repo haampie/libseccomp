@@ -1325,7 +1325,6 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	}
 
 	bintree_levels = get_bintree_levels(syscall_cnt);
-	syscall_cnt = 0;
 
 	if (bintree_levels > 0) {
 		empty_cnt = ((unsigned int)SYSCALLS_PER_NODE <<
@@ -1345,6 +1344,8 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 			bintree_hashes[i]   = INVALID_HSH;
 		}
 	}
+
+	syscall_cnt = 0;
 
 	if ((state->arch->token == SCMP_ARCH_X86_64 ||
 	     state->arch->token == SCMP_ARCH_X32) && (db_secondary == NULL))
