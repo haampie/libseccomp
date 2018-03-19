@@ -83,7 +83,7 @@ check_PROGRAMS = \
 	41-sim-syscall_priority_arch \
 	42-sim-adv_chains \
 	43-basic-pfc_binary_tree \
-	44-sim-pfc_binary_tree
+	44-sim-binary_tree
 
 EXTRA_DIST_TESTPYTHON = \
 	util.py \
@@ -128,7 +128,7 @@ EXTRA_DIST_TESTPYTHON = \
 	41-sim-syscall_priority_arch.py \
 	42-sim-adv_chains.py \
 	43-basic-pfc_binary_tree.py \
-	44-sim-pfc_binary_tree.py
+	44-sim-binary_tree.py
 
 EXTRA_DIST_TESTCFGS = \
 	01-sim-allow.tests \
@@ -174,7 +174,7 @@ EXTRA_DIST_TESTCFGS = \
 	41-sim-syscall_priority_arch.tests \
 	42-sim-adv_chains.tests \
 	43-basic-pfc_binary_tree.tests \
-	44-sim-pfc_binary_tree.tests
+	44-sim-binary_tree.tests
 
 EXTRA_DIST_TESTSCRIPTS = \
 	38-basic-pfc_coverage.sh 38-basic-pfc_coverage.pfc \
