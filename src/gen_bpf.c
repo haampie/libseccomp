@@ -1228,6 +1228,48 @@ static int get_bintree_levels(unsigned int syscall_cnt)
 	return i;
 }
 
+static unsigned int sort_syscalls(struct db_sys_list *syscalls,
+				  struct db_sys_list **s_head,
+				  struct db_sys_list **s_tail)
+{
+	struct db_sys_list *s_iter, *s_iter_b;
+	unsigned int syscall_cnt = 0;
+
+	db_list_foreach(s_iter, syscalls) {
+		syscall_cnt++;
+		if (*s_head != NULL) {
+			s_iter_b = *s_head;
+			while ((s_iter_b->pri_nxt != NULL) &&
+			       (s_iter->num <= s_iter_b->num))
+				s_iter_b = s_iter_b->pri_nxt;
+
+			if (s_iter->num > s_iter_b->num) {
+				s_iter->pri_prv = s_iter_b->pri_prv;
+				s_iter->pri_nxt = s_iter_b;
+				if (s_iter_b == *s_head) {
+					(*s_head)->pri_prv = s_iter;
+					*s_head = s_iter;
+				} else {
+					s_iter->pri_prv->pri_nxt = s_iter;
+					s_iter->pri_nxt->pri_prv = s_iter;
+				}
+			} else {
+				s_iter->pri_prv = *s_tail;
+				s_iter->pri_nxt = NULL;
+				s_iter->pri_prv->pri_nxt = s_iter;
+				*s_tail = s_iter;
+			}
+		} else {
+			*s_head = s_iter;
+			*s_tail = s_iter;
+			(*s_head)->pri_prv = NULL;
+			(*s_head)->pri_nxt = NULL;
+		}
+	}
+
+	return syscall_cnt;
+}
+
 /**
  * Generate the BPF instruction blocks for a given filter/architecture
  * @param state the BPF state
@@ -1248,7 +1290,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	unsigned int blk_cnt = 0, syscall_cnt = 0, bintree_levels, empty_cnt = 0;
 	bool acc_reset;
 	struct bpf_instr instr;
-	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter, *s_iter_b;
+	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter;
 	struct bpf_blk *b_head = NULL, *b_tail = NULL, *b_iter, *b_new,
 		       *b_bintree;
 	uint64_t *bintree_hashes = NULL;
@@ -1257,72 +1299,10 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	state->arch = db->arch;
 
 	/* sort the syscall list */
-	db_list_foreach(s_iter, db->syscalls) {
-		syscall_cnt++;
-		if (s_head != NULL) {
-			s_iter_b = s_head;
-			while ((s_iter_b->pri_nxt != NULL) &&
-			       (s_iter->num <= s_iter_b->num))
-				s_iter_b = s_iter_b->pri_nxt;
-
-			if (s_iter->num > s_iter_b->num) {
-				s_iter->pri_prv = s_iter_b->pri_prv;
-				s_iter->pri_nxt = s_iter_b;
-				if (s_iter_b == s_head) {
-					s_head->pri_prv = s_iter;
-					s_head = s_iter;
-				} else {
-					s_iter->pri_prv->pri_nxt = s_iter;
-					s_iter->pri_nxt->pri_prv = s_iter;
-				}
-			} else {
-				s_iter->pri_prv = s_tail;
-				s_iter->pri_nxt = NULL;
-				s_iter->pri_prv->pri_nxt = s_iter;
-				s_tail = s_iter;
-			}
-		} else {
-			s_head = s_iter;
-			s_tail = s_iter;
-			s_head->pri_prv = NULL;
-			s_head->pri_nxt = NULL;
-		}
-	}
-	if (db_secondary != NULL) {
-		db_list_foreach(s_iter, db_secondary->syscalls) {
-			syscall_cnt++;
-			if (s_head != NULL) {
-				s_iter_b = s_head;
-				while ((s_iter_b->pri_nxt != NULL) &&
-				       (s_iter->num <= s_iter_b->num))
-					s_iter_b = s_iter_b->pri_nxt;
-
-				if (s_iter->num > s_iter_b->num) {
-					s_iter->pri_prv = s_iter_b->pri_prv;
-					s_iter->pri_nxt = s_iter_b;
-					if (s_iter_b == s_head) {
-						s_head->pri_prv = s_iter;
-						s_head = s_iter;
-					} else {
-						s_iter->pri_prv->pri_nxt =
-							s_iter;
-						s_iter->pri_nxt->pri_prv =
-							s_iter;
-					}
-				} else {
-					s_iter->pri_prv = s_tail;
-					s_iter->pri_nxt = NULL;
-					s_iter->pri_prv->pri_nxt = s_iter;
-					s_tail = s_iter;
-				}
-			} else {
-				s_head = s_iter;
-				s_tail = s_iter;
-				s_head->pri_prv = NULL;
-				s_head->pri_nxt = NULL;
-			}
-		}
-	}
+	syscall_cnt = sort_syscalls(db->syscalls, &s_head, &s_tail);
+	if (db_secondary != NULL)
+		syscall_cnt += sort_syscalls(db_secondary->syscalls, &s_head,
+					     &s_tail);
 
 	bintree_levels = get_bintree_levels(syscall_cnt);
 
