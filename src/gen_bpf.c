@@ -1228,15 +1228,51 @@ static int get_bintree_levels(unsigned int syscall_cnt)
 	return i;
 }
 
-static unsigned int sort_syscalls(struct db_sys_list *syscalls,
+static void _sort_syscalls_by_priority(struct db_sys_list *syscalls,
+				       struct db_sys_list **s_head,
+				       struct db_sys_list **s_tail)
+{
+	struct db_sys_list *s_iter, *s_iter_b;
+
+	db_list_foreach(s_iter, syscalls) {
+		if (*s_head != NULL) {
+			s_iter_b = *s_head;
+			while ((s_iter_b->pri_nxt != NULL) &&
+			       (s_iter->priority <= s_iter_b->priority))
+				s_iter_b = s_iter_b->pri_nxt;
+
+			if (s_iter->priority > s_iter_b->priority) {
+				s_iter->pri_prv = s_iter_b->pri_prv;
+				s_iter->pri_nxt = s_iter_b;
+				if (s_iter_b == *s_head) {
+					(*s_head)->pri_prv = s_iter;
+					*s_head = s_iter;
+				} else {
+					s_iter->pri_prv->pri_nxt = s_iter;
+					s_iter->pri_nxt->pri_prv = s_iter;
+				}
+			} else {
+				s_iter->pri_prv = *s_tail;
+				s_iter->pri_nxt = NULL;
+				s_iter->pri_prv->pri_nxt = s_iter;
+				*s_tail = s_iter;
+			}
+		} else {
+			*s_head = s_iter;
+			*s_tail = s_iter;
+			(*s_head)->pri_prv = NULL;
+			(*s_head)->pri_nxt = NULL;
+		}
+	}
+}
+
+static void _sort_syscalls_by_num(struct db_sys_list *syscalls,
 				  struct db_sys_list **s_head,
 				  struct db_sys_list **s_tail)
 {
 	struct db_sys_list *s_iter, *s_iter_b;
-	unsigned int syscall_cnt = 0;
 
 	db_list_foreach(s_iter, syscalls) {
-		syscall_cnt++;
 		if (*s_head != NULL) {
 			s_iter_b = *s_head;
 			while ((s_iter_b->pri_nxt != NULL) &&
@@ -1264,6 +1300,34 @@ static unsigned int sort_syscalls(struct db_sys_list *syscalls,
 			*s_tail = s_iter;
 			(*s_head)->pri_prv = NULL;
 			(*s_head)->pri_nxt = NULL;
+		}
+	}
+}
+
+static void sort_syscalls(struct db_sys_list *syscalls,
+			  struct db_sys_list **s_head,
+			  struct db_sys_list **s_tail,
+			  unsigned int syscall_cnt)
+{
+	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
+		_sort_syscalls_by_priority(syscalls, s_head, s_tail);
+	else
+		_sort_syscalls_by_num(syscalls, s_head, s_tail);
+}
+
+static unsigned int get_syscall_cnt(const struct db_filter *db,
+				    const struct db_filter *db_secondary)
+{
+	struct db_sys_list *s_iter;
+	unsigned int syscall_cnt = 0;
+
+	db_list_foreach(s_iter, db->syscalls) {
+		syscall_cnt++;
+	}
+
+	if (db_secondary != NULL) {
+		db_list_foreach(s_iter, db_secondary->syscalls) {
+			syscall_cnt++;
 		}
 	}
 
@@ -1299,10 +1363,12 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	state->arch = db->arch;
 
 	/* sort the syscall list */
-	syscall_cnt = sort_syscalls(db->syscalls, &s_head, &s_tail);
+	syscall_cnt = get_syscall_cnt(db, db_secondary);
+	sort_syscalls(db->syscalls, &s_head, &s_tail,
+				    syscall_cnt);
 	if (db_secondary != NULL)
-		syscall_cnt += sort_syscalls(db_secondary->syscalls, &s_head,
-					     &s_tail);
+		sort_syscalls(db_secondary->syscalls, &s_head, &s_tail,
+			      syscall_cnt);
 
 	bintree_levels = get_bintree_levels(syscall_cnt);
 
