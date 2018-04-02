@@ -45,6 +45,12 @@
 #define AINC_BLK			2
 #define AINC_PROG			64
 
+/* binary tree definitions */
+#define SYSCALLS_PER_NODE		(4)
+#define MIN_SYSCALLS_TO_USE_BINTREE	(16)
+#define INVALID_HSH			(UINT64_MAX)
+#define INVALID_SYSCALL			(UINT_MAX)
+
 struct acc_state {
 	int32_t offset;
 	uint32_t mask;
@@ -1208,11 +1214,7 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
 	return blk_s;
 }
 
-#define SYSCALLS_PER_NODE		(4)
-#define MIN_SYSCALLS_TO_USE_BINTREE	(16)
-#define INVALID_HSH			(UINT64_MAX)
-#define INVALID_SYSCALL			(UINT_MAX)
-static int get_bintree_levels(unsigned int syscall_cnt)
+static int _get_bintree_levels(unsigned int syscall_cnt)
 {
 	unsigned int i = 0, max_level;
 
@@ -1304,10 +1306,10 @@ static void _sort_syscalls_by_num(struct db_sys_list *syscalls,
 	}
 }
 
-static void sort_syscalls(struct db_sys_list *syscalls,
-			  struct db_sys_list **s_head,
-			  struct db_sys_list **s_tail,
-			  unsigned int syscall_cnt)
+static void _sort_syscalls(struct db_sys_list *syscalls,
+			   struct db_sys_list **s_head,
+			   struct db_sys_list **s_tail,
+			   unsigned int syscall_cnt)
 {
 	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
 		_sort_syscalls_by_priority(syscalls, s_head, s_tail);
@@ -1315,8 +1317,8 @@ static void sort_syscalls(struct db_sys_list *syscalls,
 		_sort_syscalls_by_num(syscalls, s_head, s_tail);
 }
 
-static unsigned int get_syscall_cnt(const struct db_filter *db,
-				    const struct db_filter *db_secondary)
+static unsigned int _get_syscall_cnt(const struct db_filter *db,
+				     const struct db_filter *db_secondary)
 {
 	struct db_sys_list *s_iter;
 	unsigned int syscall_cnt = 0;
@@ -1363,14 +1365,14 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	state->arch = db->arch;
 
 	/* sort the syscall list */
-	syscall_cnt = get_syscall_cnt(db, db_secondary);
-	sort_syscalls(db->syscalls, &s_head, &s_tail,
-				    syscall_cnt);
+	syscall_cnt = _get_syscall_cnt(db, db_secondary);
+	_sort_syscalls(db->syscalls, &s_head, &s_tail,
+		       syscall_cnt);
 	if (db_secondary != NULL)
-		sort_syscalls(db_secondary->syscalls, &s_head, &s_tail,
-			      syscall_cnt);
+		_sort_syscalls(db_secondary->syscalls, &s_head, &s_tail,
+			       syscall_cnt);
 
-	bintree_levels = get_bintree_levels(syscall_cnt);
+	bintree_levels = _get_bintree_levels(syscall_cnt);
 
 	if (bintree_levels > 0) {
 		empty_cnt = ((unsigned int)SYSCALLS_PER_NODE <<
