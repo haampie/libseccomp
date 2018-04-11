@@ -1952,30 +1952,30 @@ if ($arch == 1073741827)
                   action ERRNO(74);
                 # filter for syscall "ipc" (117) [priority: 65523]
                 if ($syscall == 117)
-                  if ($a0 == 23)
-                    action ERRNO(29);
-                  if ($a0 == 21)
-                    action ERRNO(30);
                   if ($a0 == 24)
                     action ERRNO(31);
+                  if ($a0 == 23)
+                    action ERRNO(29);
+                  if ($a0 == 22)
+                    action ERRNO(67);
+                  if ($a0 == 21)
+                    action ERRNO(30);
+                  if ($a0 == 14)
+                    action ERRNO(71);
+                  if ($a0 == 13)
+                    action ERRNO(68);
+                  if ($a0 == 12)
+                    action ERRNO(70);
+                  if ($a0 == 11)
+                    action ERRNO(69);
+                  if ($a0 == 4)
+                    action ERRNO(220);
+                  if ($a0 == 3)
+                    action ERRNO(66);
                   if ($a0 == 2)
                     action ERRNO(64);
                   if ($a0 == 1)
                     action ERRNO(65);
-                  if ($a0 == 3)
-                    action ERRNO(66);
-                  if ($a0 == 22)
-                    action ERRNO(67);
-                  if ($a0 == 13)
-                    action ERRNO(68);
-                  if ($a0 == 11)
-                    action ERRNO(69);
-                  if ($a0 == 12)
-                    action ERRNO(70);
-                  if ($a0 == 14)
-                    action ERRNO(71);
-                  if ($a0 == 4)
-                    action ERRNO(220);
                 # filter for syscall "sysinfo" (116) [priority: 65535]
                 if ($syscall == 116)
                   action ERRNO(99);
@@ -2019,42 +2019,42 @@ if ($arch == 1073741827)
                   action ERRNO(103);
                 # filter for syscall "socketcall" (102) [priority: 65517]
                 if ($syscall == 102)
-                  if ($a0 == 1)
-                    action ERRNO(41);
-                  if ($a0 == 3)
-                    action ERRNO(42);
-                  if ($a0 == 5)
-                    action ERRNO(43);
-                  if ($a0 == 11)
-                    action ERRNO(44);
-                  if ($a0 == 12)
-                    action ERRNO(45);
-                  if ($a0 == 16)
-                    action ERRNO(46);
-                  if ($a0 == 17)
-                    action ERRNO(47);
-                  if ($a0 == 13)
-                    action ERRNO(48);
-                  if ($a0 == 2)
-                    action ERRNO(49);
-                  if ($a0 == 4)
-                    action ERRNO(50);
-                  if ($a0 == 6)
-                    action ERRNO(51);
-                  if ($a0 == 7)
-                    action ERRNO(52);
-                  if ($a0 == 8)
-                    action ERRNO(53);
-                  if ($a0 == 14)
-                    action ERRNO(54);
-                  if ($a0 == 15)
-                    action ERRNO(55);
-                  if ($a0 == 18)
-                    action ERRNO(288);
-                  if ($a0 == 19)
-                    action ERRNO(299);
                   if ($a0 == 20)
                     action ERRNO(307);
+                  if ($a0 == 19)
+                    action ERRNO(299);
+                  if ($a0 == 18)
+                    action ERRNO(288);
+                  if ($a0 == 17)
+                    action ERRNO(47);
+                  if ($a0 == 16)
+                    action ERRNO(46);
+                  if ($a0 == 15)
+                    action ERRNO(55);
+                  if ($a0 == 14)
+                    action ERRNO(54);
+                  if ($a0 == 13)
+                    action ERRNO(48);
+                  if ($a0 == 12)
+                    action ERRNO(45);
+                  if ($a0 == 11)
+                    action ERRNO(44);
+                  if ($a0 == 8)
+                    action ERRNO(53);
+                  if ($a0 == 7)
+                    action ERRNO(52);
+                  if ($a0 == 6)
+                    action ERRNO(51);
+                  if ($a0 == 5)
+                    action ERRNO(43);
+                  if ($a0 == 4)
+                    action ERRNO(50);
+                  if ($a0 == 3)
+                    action ERRNO(42);
+                  if ($a0 == 2)
+                    action ERRNO(49);
+                  if ($a0 == 1)
+                    action ERRNO(41);
                 # filter for syscall "ioperm" (101) [priority: 65535]
                 if ($syscall == 101)
                   action ERRNO(173);

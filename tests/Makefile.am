@@ -84,7 +84,7 @@ check_PROGRAMS = \
 	42-sim-adv_chains \
 	43-sim-a2_order \
 	44-live-a2_order \
-	45-sim-chain_code_coverage
+	45-sim-chain_code_coverage \
 	46-basic-pfc_binary_tree \
 	47-sim-binary_tree \
 	48-live-binary_tree
@@ -133,7 +133,7 @@ EXTRA_DIST_TESTPYTHON = \
 	42-sim-adv_chains.py \
 	43-sim-a2_order.py \
 	44-live-a2_order.py \
-	45-sim-chain_code_coverage.py
+	45-sim-chain_code_coverage.py \
 	46-basic-pfc_binary_tree.py \
 	47-sim-binary_tree.py \
 	48-live-binary_tree.py
@@ -183,7 +183,7 @@ EXTRA_DIST_TESTCFGS = \
 	42-sim-adv_chains.tests \
 	43-sim-a2_order.tests \
 	44-live-a2_order.tests \
-	45-sim-chain_code_coverage.tests
+	45-sim-chain_code_coverage.tests \
 	46-basic-pfc_binary_tree.tests \
 	47-sim-binary_tree.tests \
 	48-live-binary_tree.tests

@@ -42,5 +42,5 @@ function verify_deps() {
 verify_deps diff
 
 # compare output to the known good output, fail if different
-./43-basic-pfc_binary_tree | \
-	diff -q ${srcdir:=.}/43-basic-pfc_binary_tree.pfc - > /dev/null
+./46-basic-pfc_binary_tree | \
+	diff -q ${srcdir:=.}/46-basic-pfc_binary_tree.pfc - > /dev/null
