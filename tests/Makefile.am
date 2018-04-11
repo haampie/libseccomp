@@ -82,9 +82,12 @@ check_PROGRAMS = \
 	40-sim-log \
 	41-sim-syscall_priority_arch \
 	42-sim-adv_chains \
-	43-basic-pfc_binary_tree \
-	44-sim-binary_tree \
-	45-live-binary_tree
+	43-sim-a2_order \
+	44-live-a2_order \
+	45-sim-chain_code_coverage
+	46-basic-pfc_binary_tree \
+	47-sim-binary_tree \
+	48-live-binary_tree
 
 EXTRA_DIST_TESTPYTHON = \
 	util.py \
@@ -128,9 +131,12 @@ EXTRA_DIST_TESTPYTHON = \
 	40-sim-log.py \
 	41-sim-syscall_priority_arch.py \
 	42-sim-adv_chains.py \
-	43-basic-pfc_binary_tree.py \
-	44-sim-binary_tree.py \
-	45-live-binary_tree.py
+	43-sim-a2_order.py \
+	44-live-a2_order.py \
+	45-sim-chain_code_coverage.py
+	46-basic-pfc_binary_tree.py \
+	47-sim-binary_tree.py \
+	48-live-binary_tree.py
 
 EXTRA_DIST_TESTCFGS = \
 	01-sim-allow.tests \
@@ -175,13 +181,16 @@ EXTRA_DIST_TESTCFGS = \
 	40-sim-log.tests \
 	41-sim-syscall_priority_arch.tests \
 	42-sim-adv_chains.tests \
-	43-basic-pfc_binary_tree.tests \
-	44-sim-binary_tree.tests \
-	45-live-binary_tree.tests
+	43-sim-a2_order.tests \
+	44-live-a2_order.tests \
+	45-sim-chain_code_coverage.tests
+	46-basic-pfc_binary_tree.tests \
+	47-sim-binary_tree.tests \
+	48-live-binary_tree.tests
 
 EXTRA_DIST_TESTSCRIPTS = \
 	38-basic-pfc_coverage.sh 38-basic-pfc_coverage.pfc \
-	43-basic-pfc_binary_tree.sh 43-basic-pfc_binary_tree.pfc
+	46-basic-pfc_binary_tree.sh 46-basic-pfc_binary_tree.pfc
 
 EXTRA_DIST_TESTTOOLS = regression testdiff testgen
 

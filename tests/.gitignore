@@ -48,6 +48,9 @@ util.pyc
 40-sim-log
 41-sim-syscall_priority_arch
 42-sim-adv_chains
-43-basic-pfc_binary_tree
-44-sim-binary_tree
-45-live-binary_tree
+43-sim-a2_order
+44-live-a2_order
+45-sim-chain_code_coverage
+46-basic-pfc_binary_tree
+47-sim-binary_tree
+48-live-binary_tree
