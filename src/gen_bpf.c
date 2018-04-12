@@ -21,8 +21,8 @@
 
 #include <errno.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -44,6 +44,12 @@
 /* allocation increments */
 #define AINC_BLK			2
 #define AINC_PROG			64
+
+/* binary tree definitions */
+#define SYSCALLS_PER_NODE		(4)
+#define MIN_SYSCALLS_TO_USE_BINTREE	(16)
+#define INVALID_HSH			(UINT64_MAX)
+#define INVALID_SYSCALL			(UINT_MAX)
 
 struct acc_state {
 	int32_t offset;
@@ -1208,6 +1214,128 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
 	return blk_s;
 }
 
+static int _get_bintree_levels(unsigned int syscall_cnt)
+{
+	unsigned int i = 0, max_level;
+
+	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
+		/* Only use a binary tree if there are a lot of syscalls */
+		return 0;
+
+	do {
+		max_level = SYSCALLS_PER_NODE << i;
+		i++;
+	} while(max_level < syscall_cnt);
+
+	return i;
+}
+
+static void _sort_syscalls_by_priority(struct db_sys_list *syscalls,
+				       struct db_sys_list **s_head,
+				       struct db_sys_list **s_tail)
+{
+	struct db_sys_list *s_iter, *s_iter_b;
+
+	db_list_foreach(s_iter, syscalls) {
+		if (*s_head != NULL) {
+			s_iter_b = *s_head;
+			while ((s_iter_b->pri_nxt != NULL) &&
+			       (s_iter->priority <= s_iter_b->priority))
+				s_iter_b = s_iter_b->pri_nxt;
+
+			if (s_iter->priority > s_iter_b->priority) {
+				s_iter->pri_prv = s_iter_b->pri_prv;
+				s_iter->pri_nxt = s_iter_b;
+				if (s_iter_b == *s_head) {
+					(*s_head)->pri_prv = s_iter;
+					*s_head = s_iter;
+				} else {
+					s_iter->pri_prv->pri_nxt = s_iter;
+					s_iter->pri_nxt->pri_prv = s_iter;
+				}
+			} else {
+				s_iter->pri_prv = *s_tail;
+				s_iter->pri_nxt = NULL;
+				s_iter->pri_prv->pri_nxt = s_iter;
+				*s_tail = s_iter;
+			}
+		} else {
+			*s_head = s_iter;
+			*s_tail = s_iter;
+			(*s_head)->pri_prv = NULL;
+			(*s_head)->pri_nxt = NULL;
+		}
+	}
+}
+
+static void _sort_syscalls_by_num(struct db_sys_list *syscalls,
+				  struct db_sys_list **s_head,
+				  struct db_sys_list **s_tail)
+{
+	struct db_sys_list *s_iter, *s_iter_b;
+
+	db_list_foreach(s_iter, syscalls) {
+		if (*s_head != NULL) {
+			s_iter_b = *s_head;
+			while ((s_iter_b->pri_nxt != NULL) &&
+			       (s_iter->num <= s_iter_b->num))
+				s_iter_b = s_iter_b->pri_nxt;
+
+			if (s_iter->num > s_iter_b->num) {
+				s_iter->pri_prv = s_iter_b->pri_prv;
+				s_iter->pri_nxt = s_iter_b;
+				if (s_iter_b == *s_head) {
+					(*s_head)->pri_prv = s_iter;
+					*s_head = s_iter;
+				} else {
+					s_iter->pri_prv->pri_nxt = s_iter;
+					s_iter->pri_nxt->pri_prv = s_iter;
+				}
+			} else {
+				s_iter->pri_prv = *s_tail;
+				s_iter->pri_nxt = NULL;
+				s_iter->pri_prv->pri_nxt = s_iter;
+				*s_tail = s_iter;
+			}
+		} else {
+			*s_head = s_iter;
+			*s_tail = s_iter;
+			(*s_head)->pri_prv = NULL;
+			(*s_head)->pri_nxt = NULL;
+		}
+	}
+}
+
+static void _sort_syscalls(struct db_sys_list *syscalls,
+			   struct db_sys_list **s_head,
+			   struct db_sys_list **s_tail,
+			   unsigned int syscall_cnt)
+{
+	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
+		_sort_syscalls_by_priority(syscalls, s_head, s_tail);
+	else
+		_sort_syscalls_by_num(syscalls, s_head, s_tail);
+}
+
+static unsigned int _get_syscall_cnt(const struct db_filter *db,
+				     const struct db_filter *db_secondary)
+{
+	struct db_sys_list *s_iter;
+	unsigned int syscall_cnt = 0;
+
+	db_list_foreach(s_iter, db->syscalls) {
+		syscall_cnt++;
+	}
+
+	if (db_secondary != NULL) {
+		db_list_foreach(s_iter, db_secondary->syscalls) {
+			syscall_cnt++;
+		}
+	}
+
+	return syscall_cnt;
+}
+
 /**
  * Generate the BPF instruction blocks for a given filter/architecture
  * @param state the BPF state
@@ -1224,86 +1352,60 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 				     const struct db_filter *db,
 				     const struct db_filter *db_secondary)
 {
-	int rc;
-	unsigned int blk_cnt = 0;
+	int rc, level, i, j;
+	unsigned int blk_cnt = 0, syscall_cnt = 0, bintree_levels, empty_cnt = 0;
 	bool acc_reset;
 	struct bpf_instr instr;
-	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter, *s_iter_b;
-	struct bpf_blk *b_head = NULL, *b_tail = NULL, *b_iter, *b_new;
+	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter;
+	struct bpf_blk *b_head = NULL, *b_tail = NULL, *b_iter, *b_new,
+		       *b_bintree;
+	uint64_t *bintree_hashes = NULL;
+	unsigned int *bintree_syscalls = NULL;
 
 	state->arch = db->arch;
 
 	/* sort the syscall list */
-	db_list_foreach(s_iter, db->syscalls) {
-		if (s_head != NULL) {
-			s_iter_b = s_head;
-			while ((s_iter_b->pri_nxt != NULL) &&
-			       (s_iter->priority <= s_iter_b->priority))
-				s_iter_b = s_iter_b->pri_nxt;
+	syscall_cnt = _get_syscall_cnt(db, db_secondary);
+	_sort_syscalls(db->syscalls, &s_head, &s_tail,
+		       syscall_cnt);
+	if (db_secondary != NULL)
+		_sort_syscalls(db_secondary->syscalls, &s_head, &s_tail,
+			       syscall_cnt);
 
-			if (s_iter->priority > s_iter_b->priority) {
-				s_iter->pri_prv = s_iter_b->pri_prv;
-				s_iter->pri_nxt = s_iter_b;
-				if (s_iter_b == s_head) {
-					s_head->pri_prv = s_iter;
-					s_head = s_iter;
-				} else {
-					s_iter->pri_prv->pri_nxt = s_iter;
-					s_iter->pri_nxt->pri_prv = s_iter;
-				}
-			} else {
-				s_iter->pri_prv = s_tail;
-				s_iter->pri_nxt = NULL;
-				s_iter->pri_prv->pri_nxt = s_iter;
-				s_tail = s_iter;
-			}
-		} else {
-			s_head = s_iter;
-			s_tail = s_iter;
-			s_head->pri_prv = NULL;
-			s_head->pri_nxt = NULL;
+	bintree_levels = _get_bintree_levels(syscall_cnt);
+
+	if (bintree_levels > 0) {
+		empty_cnt = ((unsigned int)SYSCALLS_PER_NODE <<
+			     (bintree_levels - 1)) - syscall_cnt;
+
+		bintree_hashes = zmalloc(sizeof(uint64_t) * bintree_levels);
+		if (bintree_hashes == NULL)
+			goto arch_failure;
+
+		bintree_syscalls = zmalloc(sizeof(unsigned int) *
+					   bintree_levels);
+		if (bintree_syscalls == NULL)
+			goto arch_failure;
+
+		for (i = 0; i < bintree_levels; i++) {
+			bintree_syscalls[i] = INVALID_SYSCALL;
+			bintree_hashes[i]   = INVALID_HSH;
 		}
 	}
-	if (db_secondary != NULL) {
-		db_list_foreach(s_iter, db_secondary->syscalls) {
-			if (s_head != NULL) {
-				s_iter_b = s_head;
-				while ((s_iter_b->pri_nxt != NULL) &&
-				       (s_iter->priority <= s_iter_b->priority))
-					s_iter_b = s_iter_b->pri_nxt;
 
-				if (s_iter->priority > s_iter_b->priority) {
-					s_iter->pri_prv = s_iter_b->pri_prv;
-					s_iter->pri_nxt = s_iter_b;
-					if (s_iter_b == s_head) {
-						s_head->pri_prv = s_iter;
-						s_head = s_iter;
-					} else {
-						s_iter->pri_prv->pri_nxt =
-							s_iter;
-						s_iter->pri_nxt->pri_prv =
-							s_iter;
-					}
-				} else {
-					s_iter->pri_prv = s_tail;
-					s_iter->pri_nxt = NULL;
-					s_iter->pri_prv->pri_nxt = s_iter;
-					s_tail = s_iter;
-				}
-			} else {
-				s_head = s_iter;
-				s_tail = s_iter;
-				s_head->pri_prv = NULL;
-				s_head->pri_nxt = NULL;
-			}
-		}
-	}
+	syscall_cnt = 0;
 
 	if ((state->arch->token == SCMP_ARCH_X86_64 ||
 	     state->arch->token == SCMP_ARCH_X32) && (db_secondary == NULL))
 		acc_reset = false;
 	else
 		acc_reset = true;
+
+	if (bintree_levels != 0)
+		/* The accumulator is reset when the first bintree "if" is
+		 * generated.
+		 */
+		acc_reset = false;
 
 	/* create the syscall filters and add them to block list group */
 	for (s_iter = s_tail; s_iter != NULL; s_iter = s_iter->pri_prv) {
@@ -1333,6 +1435,80 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		if (b_tail->next != NULL)
 			b_tail = b_tail->next;
 		blk_cnt++;
+		syscall_cnt++;
+
+		b_bintree = NULL;
+
+		/* build the binary tree if and else logic */
+		for (i = bintree_levels - 1; i > 0; i--) {
+			level = SYSCALLS_PER_NODE << i;
+
+			if (((syscall_cnt + empty_cnt) % level) == 0) {
+				/* save the "if greater than" syscall num */
+				bintree_syscalls[i] = s_iter->num;
+				/* save the hash for the jf case */
+				bintree_hashes[i] = b_new->hash;
+
+				for (j = 0; j < i; j++) {
+					if (bintree_syscalls[j] == INVALID_SYSCALL ||
+					    bintree_hashes[j] == INVALID_HSH)
+						/* we are near the end of the binary
+						 * tree and the jump-to location is
+						 * not valid.  skip this if-else
+						 */
+						continue;
+
+					_BPF_INSTR(instr,
+						_BPF_OP(state->arch, BPF_JMP + BPF_JGT),
+						_BPF_JMP_NO,
+						_BPF_JMP_NO,
+						_BPF_K(state->arch, bintree_syscalls[j]));
+					instr.jt = _BPF_JMP_HSH(b_bintree == NULL ?
+							b_new->hash : b_bintree->hash);
+					instr.jf = _BPF_JMP_HSH(bintree_hashes[j]);
+
+					b_bintree = _blk_append(state, NULL, &instr);
+					if (b_bintree == NULL)
+						goto arch_failure;
+					b_bintree->next = b_head;
+					if (b_head != NULL)
+						b_head->prev = b_bintree;
+					b_head = b_bintree;
+
+					rc = _hsh_add(state, &b_bintree, 1);
+					if (rc < 0)
+						goto arch_failure;
+				}
+
+				if (b_bintree != NULL)
+					/* this is the last if in this "block".
+					 * save it off so the next binary tree
+					 * if can "else" to it.
+					 */
+					bintree_hashes[j] = b_bintree->hash;
+				break;
+			}
+		}
+	}
+
+	if (bintree_levels > 0) {
+		_BPF_INSTR(instr, _BPF_OP(state->arch, BPF_LD + BPF_ABS),
+			   _BPF_JMP_NO, _BPF_JMP_NO,
+			   _BPF_SYSCALL(state->arch));
+		b_bintree = _blk_append(state, NULL, &instr);
+		if (b_bintree == NULL)
+			goto arch_failure;
+		/* we've loaded the syscall ourselves */
+		b_bintree->acc_start = _ACC_STATE_UNDEF;
+		b_bintree->acc_end = _ACC_STATE_OFFSET(_BPF_OFFSET_SYSCALL);
+		b_bintree->next = b_head;
+		if (b_head != NULL)
+			b_head->prev = b_bintree;
+		b_head = b_bintree;
+
+		rc = _hsh_add(state, &b_bintree, 1);
+		if (rc < 0)
+			goto arch_failure;
 	}
 
 	/* additional ABI filtering */
@@ -1421,6 +1597,11 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	if (rc < 0)
 		goto arch_failure;
 
+	if (bintree_hashes != NULL)
+		free(bintree_hashes);
+	if (bintree_syscalls != NULL)
+		free(bintree_syscalls);
+
 	state->arch = NULL;
 	return b_head;
 
@@ -1428,6 +1609,11 @@ arch_failure:
 	/* NOTE: we do the cleanup here and not just return an error as all of
 	 * the instruction blocks may not be added to the hash table when we
 	 * hit an error */
+	if (bintree_hashes != NULL)
+		free(bintree_hashes);
+	if (bintree_syscalls != NULL)
+		free(bintree_syscalls);
+
 	state->arch = NULL;
 	b_iter = b_head;
 	while (b_iter != NULL) {
