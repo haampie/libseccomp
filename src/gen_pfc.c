@@ -257,7 +257,7 @@ static void _gen_pfc_syscall(const struct arch_def *arch,
 
 #define SYSCALLS_PER_NODE		(4)
 #define MIN_SYSCALLS_TO_USE_BINTREE	(16)
-static int get_bintree_levels(unsigned int syscall_cnt)
+static int _get_bintree_levels(unsigned int syscall_cnt)
 {
 	unsigned int i = 0, max_level;
 
@@ -273,9 +273,9 @@ static int get_bintree_levels(unsigned int syscall_cnt)
 	return i;
 }
 
-static int get_bintree_syscall_num(const struct pfc_sys_list *cur,
-				   int lookahead_cnt,
-				   int * const num)
+static int _get_bintree_syscall_num(const struct pfc_sys_list *cur,
+				    int lookahead_cnt,
+				    int * const num)
 {
 	while (lookahead_cnt > 0 && cur != NULL) {
 		cur = cur->next;
@@ -287,6 +287,96 @@ static int get_bintree_syscall_num(const struct pfc_sys_list *cur,
 
 	*num = cur->sys->num;
 	return 0;
+}
+
+static int _sort_syscalls_by_num(struct db_sys_list *syscalls,
+				 struct pfc_sys_list **p_head)
+{
+	struct pfc_sys_list *p_iter = NULL, *p_new, *p_prev;
+	struct db_sys_list *s_iter;
+
+	db_list_foreach(s_iter, syscalls) {
+		p_new = zmalloc(sizeof(*p_new));
+		if (p_new == NULL) {
+			return -ENOMEM;
+		}
+		p_new->sys = s_iter;
+
+		p_prev = NULL;
+		p_iter = *p_head;
+		while (p_iter != NULL &&
+		       s_iter->num < p_iter->sys->num) {
+			p_prev = p_iter;
+			p_iter = p_iter->next;
+		}
+		if (*p_head == NULL)
+			*p_head = p_new;
+		else if (p_prev == NULL) {
+			p_new->next = *p_head;
+			*p_head = p_new;
+		} else {
+			p_new->next = p_iter;
+			p_prev->next = p_new;
+		}
+	}
+
+	return 0;
+}
+
+static int _sort_syscalls_by_priority(struct db_sys_list *syscalls,
+				      struct pfc_sys_list **p_head)
+{
+	struct pfc_sys_list *p_iter = NULL, *p_new, *p_prev;
+	struct db_sys_list *s_iter;
+
+	db_list_foreach(s_iter, syscalls) {
+		p_new = zmalloc(sizeof(*p_new));
+		if (p_new == NULL) {
+			return -ENOMEM;
+		}
+		p_new->sys = s_iter;
+
+		p_prev = NULL;
+		p_iter = *p_head;
+		while (p_iter != NULL &&
+		       s_iter->priority < p_iter->sys->priority) {
+			p_prev = p_iter;
+			p_iter = p_iter->next;
+		}
+		if (*p_head == NULL)
+			*p_head = p_new;
+		else if (p_prev == NULL) {
+			p_new->next = *p_head;
+			*p_head = p_new;
+		} else {
+			p_new->next = p_iter;
+			p_prev->next = p_new;
+		}
+	}
+
+	return 0;
+}
+
+static int _sort_syscalls(struct db_sys_list *syscalls,
+			  struct pfc_sys_list **p_head,
+			  unsigned int syscall_cnt)
+{
+	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
+		return _sort_syscalls_by_priority(syscalls, p_head);
+	else
+		return _sort_syscalls_by_num(syscalls, p_head);
+}
+
+static unsigned int _get_syscall_cnt(struct db_sys_list *syscalls)
+{
+	struct db_sys_list *s_iter;
+	unsigned int syscall_cnt = 0;
+
+	db_list_foreach(s_iter, syscalls) {
+		syscall_cnt++;
+	}
+
+	return syscall_cnt;
 }
 
 /**
@@ -305,38 +395,15 @@ static int _gen_pfc_arch(const struct db_filter_col *col,
 {
 	int rc = 0, i = 0, lookahead_num;
 	unsigned int syscall_cnt = 0, bintree_levels, level, indent = 1;
-	struct db_sys_list *s_iter;
-	struct pfc_sys_list *p_iter = NULL, *p_new, *p_head = NULL, *p_prev;
+	struct pfc_sys_list *p_iter = NULL, *p_head = NULL;
 
 	/* sort the syscall list */
-	db_list_foreach(s_iter, db->syscalls) {
-		syscall_cnt++;
-		p_new = zmalloc(sizeof(*p_new));
-		if (p_new == NULL) {
-			rc = -ENOMEM;
-			goto arch_return;
-		}
-		p_new->sys = s_iter;
+	syscall_cnt = _get_syscall_cnt(db->syscalls);
+	rc = _sort_syscalls(db->syscalls, &p_head, syscall_cnt);
+	if (rc < 0)
+		goto arch_return;
 
-		p_prev = NULL;
-		p_iter = p_head;
-		while (p_iter != NULL &&
-		       s_iter->num < p_iter->sys->num) {
-			p_prev = p_iter;
-			p_iter = p_iter->next;
-		}
-		if (p_head == NULL)
-			p_head = p_new;
-		else if (p_prev == NULL) {
-			p_new->next = p_head;
-			p_head = p_new;
-		} else {
-			p_new->next = p_iter;
-			p_prev->next = p_new;
-		}
-	}
-
-	bintree_levels = get_bintree_levels(syscall_cnt);
+	bintree_levels = _get_bintree_levels(syscall_cnt);
 	syscall_cnt = 0;
 
 	fprintf(fds, "# filter for arch %s (%u)\n",
@@ -351,8 +418,8 @@ static int _gen_pfc_arch(const struct db_filter_col *col,
 			level = SYSCALLS_PER_NODE << i;
 
 			if (syscall_cnt == 0 || (syscall_cnt % level) == 0) {
-				rc = get_bintree_syscall_num(p_iter, level / 2,
-							     &lookahead_num);
+				rc = _get_bintree_syscall_num(p_iter, level / 2,
+							      &lookahead_num);
 				if (rc < 0)
 					/* We have reached the end of the bintree.
 					 * There aren't enough syscalls to construct
