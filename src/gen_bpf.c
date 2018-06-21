@@ -185,7 +185,8 @@ struct bpf_state {
  */
 #define _BPF_INSTR(_ins,_op,_jt,_jf,_k) \
 	do { \
-		memset(&(_ins), 0, sizeof(_ins)); \
+		/*memset(&(_ins), 0, sizeof(_ins));*/ \
+		memset((void *)((unsigned long)(&(_ins)) + 4), 0, sizeof(_ins) - 4); \
 		(_ins).op = (_op); \
 		(_ins).jt = _jt; \
 		(_ins).jf = _jf; \
@@ -1466,6 +1467,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 					instr.jt = _BPF_JMP_HSH(b_bintree == NULL ?
 							b_new->hash : b_bintree->hash);
 					instr.jf = _BPF_JMP_HSH(bintree_hashes[j]);
+					blk_cnt++;
 
 					b_bintree = _blk_append(state, NULL, &instr);
 					if (b_bintree == NULL)
@@ -1495,6 +1497,8 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		_BPF_INSTR(instr, _BPF_OP(state->arch, BPF_LD + BPF_ABS),
 			   _BPF_JMP_NO, _BPF_JMP_NO,
 			   _BPF_SYSCALL(state->arch));
+		blk_cnt++;
+
 		b_bintree = _blk_append(state, NULL, &instr);
 		if (b_bintree == NULL)
 			goto arch_failure;
