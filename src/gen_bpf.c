@@ -1217,6 +1217,10 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
 	return blk_s;
 }
 
+/**
+ * Calculate the number of levels in the binary tree
+ * @param syscall_cnt the number of syscalls in this seccomp filter
+ */
 static int _get_bintree_levels(unsigned int syscall_cnt)
 {
 	unsigned int i = 0, max_level;
@@ -1233,6 +1237,15 @@ static int _get_bintree_levels(unsigned int syscall_cnt)
 	return i;
 }
 
+/**
+ * Sort the syscalls by priority
+ * @param syscalls the linked list of syscalls to be sorted
+ * @param s_head the head of the linked list to be returned to the caller
+ * @param s_tail the tail of the linked list to be returned to the caller
+ *
+ * Sorts syscalls by their syscall number
+ *
+ */
 static void _sort_syscalls_by_priority(struct db_sys_list *syscalls,
 				       struct db_sys_list **s_head,
 				       struct db_sys_list **s_tail)
@@ -1271,6 +1284,15 @@ static void _sort_syscalls_by_priority(struct db_sys_list *syscalls,
 	}
 }
 
+/**
+ * Sort the syscalls by syscall number
+ * @param syscalls the linked list of syscalls to be sorted
+ * @param s_head the head of the linked list to be returned to the caller
+ * @param s_tail the tail of the linked list to be returned to the caller
+ *
+ * Sorts syscalls by their syscall number
+ *
+ */
 static void _sort_syscalls_by_num(struct db_sys_list *syscalls,
 				  struct db_sys_list **s_head,
 				  struct db_sys_list **s_tail)
@@ -1309,6 +1331,15 @@ static void _sort_syscalls_by_num(struct db_sys_list *syscalls,
 	}
 }
 
+/**
+ * Sort the syscalls
+ * @param syscalls the linked list of syscalls to be sorted
+ * @param s_head the head of the linked list to be returned to the caller
+ * @param s_tail the tail of the linked list to be returned to the caller
+ *
+ * Wrapper function for sorting syscalls
+ *
+ */
 static void _sort_syscalls(struct db_sys_list *syscalls,
 			   struct db_sys_list **s_head,
 			   struct db_sys_list **s_tail,
@@ -1320,6 +1351,13 @@ static void _sort_syscalls(struct db_sys_list *syscalls,
 		_sort_syscalls_by_num(syscalls, s_head, s_tail);
 }
 
+/**
+ * Count the number of syscalls in the filter
+ * @param db the filter DB
+ * @param db_secondary the secondary DB
+ *
+ * Count the total number of syscalls that are in the seccomp fitler
+ */
 static unsigned int _get_syscall_cnt(const struct db_filter *db,
 				     const struct db_filter *db_secondary)
 {
