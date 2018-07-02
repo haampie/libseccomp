@@ -132,6 +132,7 @@ struct bpf_blk {
 	bool flag_hash;			/* added to the hash table */
 	bool flag_dup;			/* duplicate block and in use */
 	bool flag_unique;		/* ->blks is unique to this block */
+	bool flag_dont_dedup;		/* do _not_ dedup this block */
 
 	/* original db_arg_chain_tree node */
 	const struct db_arg_chain_tree *node;
@@ -185,8 +186,7 @@ struct bpf_state {
  */
 #define _BPF_INSTR(_ins,_op,_jt,_jf,_k) \
 	do { \
-		/*memset(&(_ins), 0, sizeof(_ins));*/ \
-		memset((void *)((unsigned long)(&(_ins)) + 4), 0, sizeof(_ins) - 4); \
+		memset(&(_ins), 0, sizeof(_ins)); \
 		(_ins).op = (_op); \
 		(_ins).jt = _jt; \
 		(_ins).jf = _jf; \
@@ -588,7 +588,8 @@ hsh_add_restart:
 	h_iter = state->htbl[h_val & _BPF_HASH_MASK];
 	if (h_iter != NULL) {
 		do {
-			if ((h_iter->blk->hash == h_val) &&
+			if ((!blk->flag_dont_dedup) &&
+			    (h_iter->blk->hash == h_val) &&
 			    (_BLK_MSZE(h_iter->blk) == _BLK_MSZE(blk)) &&
 			    (memcmp(h_iter->blk->blks, blk->blks,
 				    _BLK_MSZE(blk)) == 0)) {
@@ -816,6 +817,7 @@ static struct bpf_blk *_gen_bpf_node(struct bpf_state *state,
 	if (blk == NULL)
 		return NULL;
 	blk->acc_start = *a_state;
+	blk->flag_dont_dedup = true;
 
 	/* generate the action blocks */
 	if (node->act_t_flg) {
