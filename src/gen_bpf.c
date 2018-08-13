@@ -1223,16 +1223,16 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
  */
 static int _get_bintree_levels(unsigned int syscall_cnt)
 {
-	unsigned int i = 0, max_level;
+	unsigned int i = 1, max_level = SYSCALLS_PER_NODE * 2;
 
 	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
 		/* Only use a binary tree if there are a lot of syscalls */
 		return 0;
 
-	do {
-		max_level = SYSCALLS_PER_NODE << i;
+	while(max_level < syscall_cnt) {
+		max_level <<= 1;
 		i++;
-	} while(max_level < syscall_cnt);
+	}
 
 	return i;
 }
@@ -1400,7 +1400,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter;
 	struct bpf_blk *b_head = NULL, *b_tail = NULL, *b_iter, *b_new,
 		       *b_bintree;
-	uint64_t *bintree_hashes = NULL;
+	uint64_t *bintree_hashes = NULL, nxt_hsh;
 	unsigned int *bintree_syscalls = NULL;
 
 	state->arch = db->arch;
@@ -1416,9 +1416,8 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 	bintree_levels = _get_bintree_levels(syscall_cnt);
 
 	if (bintree_levels > 0) {
-		empty_cnt = ((unsigned int)SYSCALLS_PER_NODE <<
+		empty_cnt = ((unsigned int)(SYSCALLS_PER_NODE * 2) <<
 			     (bintree_levels - 1)) - syscall_cnt;
-
 		bintree_hashes = zmalloc(sizeof(uint64_t) * bintree_levels);
 		if (bintree_hashes == NULL)
 			goto arch_failure;
@@ -1453,10 +1452,16 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		if (!s_iter->valid)
 			continue;
 
+		if (((syscall_cnt + empty_cnt) % SYSCALLS_PER_NODE) == 0)
+			/* This is the last syscall in the node.  go to the
+			 * default hash */
+			nxt_hsh = state->def_hsh;
+		else
+			nxt_hsh = b_head == NULL ? state->def_hsh :
+						   b_head->hash;
+
 		/* build the syscall filter */
-		b_new = _gen_bpf_syscall(state, s_iter,
-					 (b_head == NULL ?
-					  state->def_hsh : b_head->hash),
+		b_new = _gen_bpf_syscall(state, s_iter, nxt_hsh,
 					 (s_iter == s_head ?
 					  acc_reset : false));
 		if (b_new == NULL)
@@ -1481,7 +1486,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		b_bintree = NULL;
 
 		/* build the binary tree if and else logic */
-		for (i = bintree_levels - 1; i > 0; i--) {
+		for (i = bintree_levels; i >= 0; i--) {
 			level = SYSCALLS_PER_NODE << i;
 
 			if (((syscall_cnt + empty_cnt) % level) == 0) {
