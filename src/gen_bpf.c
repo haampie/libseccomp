@@ -1223,7 +1223,7 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
  */
 static int _get_bintree_levels(unsigned int syscall_cnt)
 {
-	unsigned int i = 1, max_level = SYSCALLS_PER_NODE * 2;
+	unsigned int i = 2, max_level = SYSCALLS_PER_NODE * 2;
 
 	if (syscall_cnt < MIN_SYSCALLS_TO_USE_BINTREE)
 		/* Only use a binary tree if there are a lot of syscalls */
@@ -1423,7 +1423,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 			goto arch_failure;
 
 		bintree_syscalls = zmalloc(sizeof(unsigned int) *
-					   bintree_levels);
+					   (bintree_levels));
 		if (bintree_syscalls == NULL)
 			goto arch_failure;
 
@@ -1452,7 +1452,8 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		if (!s_iter->valid)
 			continue;
 
-		if (((syscall_cnt + empty_cnt) % SYSCALLS_PER_NODE) == 0)
+		if (bintree_levels > 0 &&
+		    ((syscall_cnt + empty_cnt) % SYSCALLS_PER_NODE) == 0)
 			/* This is the last syscall in the node.  go to the
 			 * default hash */
 			nxt_hsh = state->def_hsh;
@@ -1486,7 +1487,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 		b_bintree = NULL;
 
 		/* build the binary tree if and else logic */
-		for (i = bintree_levels; i >= 0; i--) {
+		for (i = bintree_levels - 1; i >= 0; i--) {
 			level = SYSCALLS_PER_NODE << i;
 
 			if (((syscall_cnt + empty_cnt) % level) == 0) {
