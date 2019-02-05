@@ -32,13 +32,17 @@ int main(int argc, char *argv[])
 	struct util_options opts;
 	scmp_filter_ctx ctx = NULL;
 
-	rc = util_getopt(argc, argv, &opts);
-	if (rc < 0)
-		goto out;
+	rc = seccomp_api_set(3);
+	if (rc != 0)
+		return EOPNOTSUPP;
 
 	ctx = seccomp_init(SCMP_ACT_KILL_PROCESS);
 	if (ctx == NULL)
 		return ENOMEM;
+
+	rc = util_getopt(argc, argv, &opts);
+	if (rc < 0)
+		goto out;
 
 	rc = seccomp_arch_remove(ctx, SCMP_ARCH_NATIVE);
 	if (rc != 0)

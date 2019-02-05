@@ -41,6 +41,8 @@ def child_start(param):
         quit(ex.errno)
 
 def test():
+    set_api(3)
+
     f = SyscallFilter(KILL_PROCESS)
     f.add_rule(ALLOW, "clone")
     f.add_rule(ALLOW, "exit")

@@ -74,6 +74,10 @@ int main(int argc, char *argv[])
 	scmp_filter_ctx ctx = NULL;
 	pthread_t child_thread;
 
+	rc = seccomp_api_set(3);
+	if (rc != 0)
+		return EOPNOTSUPP;
+
 	ctx = seccomp_init(SCMP_ACT_KILL_PROCESS);
 	if (ctx == NULL)
 		return ENOMEM;
