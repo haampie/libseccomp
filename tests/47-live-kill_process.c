@@ -70,12 +70,12 @@ void *child_start(void *param)
 
 int main(int argc, char *argv[])
 {
-	int rc, i, param = 0;
+	int rc, i, api, param = 0;
 	scmp_filter_ctx ctx = NULL;
 	pthread_t child_thread;
 
-	rc = seccomp_api_set(3);
-	if (rc != 0)
+	api = seccomp_api_get();
+	if (api < 3)
 		return EOPNOTSUPP;
 
 	ctx = seccomp_init(SCMP_ACT_KILL_PROCESS);
