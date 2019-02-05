@@ -28,12 +28,12 @@
 
 int main(int argc, char *argv[])
 {
-	int rc;
+	int rc, api;
 	struct util_options opts;
 	scmp_filter_ctx ctx = NULL;
 
-	rc = seccomp_api_set(3);
-	if (rc != 0)
+	api = seccomp_api_get();
+	if (api < 3)
 		return EOPNOTSUPP;
 
 	ctx = seccomp_init(SCMP_ACT_KILL_PROCESS);

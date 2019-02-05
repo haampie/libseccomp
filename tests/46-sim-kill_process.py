@@ -29,7 +29,9 @@ import util
 from seccomp import *
 
 def test(args):
-    set_api(3)
+    api = get_api()
+    if (api < 3):
+        quit(-errno.EOPNOTSUPP)
 
     f = SyscallFilter(KILL_PROCESS)
     f.remove_arch(Arch())
