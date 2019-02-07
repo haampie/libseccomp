@@ -88,7 +88,8 @@ check_PROGRAMS = \
 	46-sim-kill_process \
 	47-live-kill_process \
 	48-sim-32b_args \
-	49-sim-64b_comparisons
+	49-sim-64b_comparisons \
+	50-live-user_notification
 
 EXTRA_DIST_TESTPYTHON = \
 	util.py \
@@ -190,7 +191,8 @@ EXTRA_DIST_TESTCFGS = \
 	46-sim-kill_process.tests \
 	47-live-kill_process.tests \
 	48-sim-32b_args.tests \
-	49-sim-64b_comparisons.tests
+	49-sim-64b_comparisons.tests \
+	50-live-user_notification.tests
 
 EXTRA_DIST_TESTSCRIPTS = \
 	38-basic-pfc_coverage.sh 38-basic-pfc_coverage.pfc
