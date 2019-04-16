@@ -7,8 +7,6 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "util.h"
-
 int main(int argc, char *argv[])
 {
 	int rc, fd = -1, status;
@@ -16,19 +14,10 @@ int main(int argc, char *argv[])
 	struct seccomp_notif_resp *resp = NULL;
 	scmp_filter_ctx ctx = NULL;
 	pid_t pid = 0;
-	struct util_options opts;
-
-	rc = util_getopt(argc, argv, &opts);
-	if (rc < 0)
-		goto out;
 
 	ctx = seccomp_init(SCMP_ACT_ALLOW);
 	if (ctx == NULL)
 		return ENOMEM;
-
-	rc = util_filter_output(&opts, ctx);
-	if (rc)
-		goto out;
 
 	rc = seccomp_attr_set(ctx, SCMP_FLTATR_NEW_LISTENER, 1);
 	if (rc)
@@ -82,7 +71,7 @@ int main(int argc, char *argv[])
 	if (WEXITSTATUS(status))
 		goto out;
 
-	rc = 0;
+	rc = 165;
 out:
 	if (req)
 		seccomp_notif_free(req, resp);
