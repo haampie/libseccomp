@@ -56,11 +56,11 @@ install:
 script:
   - ./configure --enable-python
   - make check-build
-  - pushd tests;./regression -T live -b 24-live-arg_allow -m python;popd
-#  - LIBSECCOMP_TSTCFG_STRESSCNT=5 make check
-#  - LIBSECCOMP_TSTCFG_TYPE=live make -C tests check
+#  - pushd tests;./regression -T live -b 24-live-arg_allow -m python;popd
+  - LIBSECCOMP_TSTCFG_STRESSCNT=5 make check
+  - LIBSECCOMP_TSTCFG_TYPE=live make -C tests check
   # ubuntu 14.04 (trusty) clang has problems with the cython generated code
-#  - make clean && ./configure && scan-build --status-bugs make
+  - make clean && ./configure && scan-build --status-bugs make
 
 #after_success:
 #  # limit the code coverage tests to the 'test-code-coverage' target
