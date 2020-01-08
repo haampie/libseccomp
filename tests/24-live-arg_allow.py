@@ -37,22 +37,29 @@ def test():
 
     fd = os.open("/dev/null", os.O_WRONLY|os.O_CREAT)
 
-    f = SyscallFilter(TRAP)
+    print("1")
+    f = SyscallFilter(ERRNO(7))
     # NOTE: additional syscalls required for python
-    f.add_rule(ALLOW, "write", Arg(0, EQ, fd))
+    #f.add_rule(ALLOW, "write", Arg(0, EQ, fd))
+    f.add_rule(ALLOW, "write")
     f.add_rule(ALLOW, "close")
     f.add_rule(ALLOW, "rt_sigaction")
     f.add_rule(ALLOW, "rt_sigreturn")
+    print("2")
     f.add_rule(ALLOW, "sigaltstack")
     f.add_rule(ALLOW, "exit_group")
     f.add_rule(ALLOW, "brk")
     f.load()
+    print("3")
 
     try:
         if not os.write(fd, b"testing") == len("testing"):
+            print("write failed")
             raise IOError("failed to write the full test string")
+        print("write len didn't equal")
         quit(160)
     except OSError as ex:
+        print("oserror argh")
         quit(ex.errno)
     os.close(fd)
 
