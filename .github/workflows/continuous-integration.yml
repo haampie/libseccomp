@@ -78,6 +78,9 @@ jobs:
           ./configure.sh --enable-python
           make check-build
 
+        run: |
+          make check
+
 #    - run: |
 #        case "${{ matrix.distro }}" in
 #          ubuntu*|jessie|stretch|buster)
