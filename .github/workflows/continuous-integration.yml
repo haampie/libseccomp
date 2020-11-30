@@ -50,6 +50,7 @@ jobs:
             sudo apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
             ;;
           fedora*)
+            cat /etc/fedora-release
             sudo dnf -y update
             sudo dnf -y install build-essential valgrind clang lcov gperf astyle codespell
             ;;
