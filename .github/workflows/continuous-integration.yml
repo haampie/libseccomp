@@ -43,38 +43,73 @@ jobs:
         
 
     steps:
-    - run: |
-        case "${{ matrix.distro }}" in
-          ubuntu*|jessie|stretch|buster)
-            sudo apt-get update -q -y
-            sudo apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
-            ;;
-          fedora*)
-            cat /etc/fedora-release
-            sudo dnf -y update
-            sudo dnf -y install build-essential valgrind clang lcov gperf astyle codespell
-            ;;
-          alpine*)
-            sudo apk update
-            sudo apk add build-essential valgrind clang lcov gperf astyle codespell
-            ;;
-          esac
-    - run: |
-        python -m pip install --upgrade pip
-        pip install cython
     # cython is installed to the following path
     - run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
     - uses: actions/checkout@v2
-    - run: ./autogen.sh
-    - run: ./configure --enable-python
-    - run: make check-build
-    - name: Automated tests
-      run: LIBSECCOMP_TSTCFG_STRESSCNT=5 make check
-    - name: Live tests
-      run: LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check
-    - name: Scan build
-      if: ${{ matrix.arch }} == "amd64"
-      run: |
-        make clean
-        ./configure
-        scan-build --status-bugs make
+    - uses: uraimo/run-on-arch-action@v2
+      name: Build and run tests on ${{ matrix.distro }} on ${{ matrix.arch }}
+      id: run-tests
+      with:
+        arch: ${{ matrix.arch }}
+        distro: ${{ matrix.distro }}
+
+        # Not required, but speeds up builds
+        githubToken: ${{ github.token }}
+
+        install: |
+          case "${{ matrix.distro }}" in
+            ubuntu*|jessie|stretch|buster)
+              sudo apt-get update -q -y
+              sudo apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
+              ;;
+            fedora*)
+              cat /etc/fedora-release
+              sudo dnf -y update
+              sudo dnf -y install build-essential valgrind clang lcov gperf astyle codespell
+              ;;
+            alpine*)
+              sudo apk update
+              sudo apk add build-essential valgrind clang lcov gperf astyle codespell
+              ;;
+            esac
+
+        setup: |
+          ./autogen.sh
+          ./configure.sh --enable-python
+          make check-build
+
+#    - run: |
+#        case "${{ matrix.distro }}" in
+#          ubuntu*|jessie|stretch|buster)
+#            sudo apt-get update -q -y
+#            sudo apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
+#            ;;
+#          fedora*)
+#            cat /etc/fedora-release
+#            sudo dnf -y update
+#            sudo dnf -y install build-essential valgrind clang lcov gperf astyle codespell
+#            ;;
+#          alpine*)
+#            sudo apk update
+#            sudo apk add build-essential valgrind clang lcov gperf astyle codespell
+#            ;;
+#          esac
+#    - run: |
+#        python -m pip install --upgrade pip
+#        pip install cython
+#    # cython is installed to the following path
+#    - run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
+#    - uses: actions/checkout@v2
+#    - run: ./autogen.sh
+#    - run: ./configure --enable-python
+#    - run: make check-build
+#    - name: Automated tests
+#      run: LIBSECCOMP_TSTCFG_STRESSCNT=5 make check
+#    - name: Live tests
+#      run: LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check
+#    - name: Scan build
+#      if: ${{ matrix.arch }} == "amd64"
+#      run: |
+#        make clean
+#        ./configure
+#        scan-build --status-bugs make
