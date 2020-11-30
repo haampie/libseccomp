@@ -75,7 +75,7 @@ jobs:
 
         setup: |
           ./autogen.sh
-          ./configure.sh --enable-python
+          ./configure --enable-python
           make check-build
 
         run: |
