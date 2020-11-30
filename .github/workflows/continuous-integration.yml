@@ -72,7 +72,7 @@ jobs:
     - name: Live tests
       run: LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check
     - name: Scan build
-      if: ${{ matrix.arch == "amd64" }}
+      if: ${{ matrix.arch }} == "amd64"
       run: |
         make clean
         ./configure
