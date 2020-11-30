@@ -52,6 +52,7 @@ jobs:
       with:
         arch: ${{ matrix.arch }}
         distro: ${{ matrix.distro }}
+        shell: /bin/sh
 
         # Not required, but speeds up builds
         githubToken: ${{ github.token }}
