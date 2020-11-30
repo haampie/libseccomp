@@ -25,7 +25,7 @@ on: ["push", "pull_request"]
 jobs:
   runtests:
     runs-on: ubuntu-20.04
-    name: Automated tests on ${{ matrix.distro }} ${{ matrix.arch }}
+    name: ${{ matrix.distro }} ${{ matrix.arch }}
 
     # See here for more information:
     # https://github.com/marketplace/actions/run-on-architecture#supported-platforms
@@ -41,9 +41,29 @@ jobs:
         
 
     steps:
-    - uses: actions/checkout@v2
+    - run: |
+        case "${{ matrix.distro }}" in
+          ubuntu*|jessie|stretch|buster)
+            apt-get update -q -y
+            apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
+            ;;
+          fedora*)
+            dnf -y update
+            dnf -y install build-essential valgrind clang lcov gperf astyle codespell
+            ;;
+          alpine*)
+            apk update
+            apk add build-essential valgrind clang lcov gperf astyle codespell
+            ;;
+          esac
+    - run: |
+        python -m pip install --upgrade pip
+        pip install cython
+    # cython is installed to the following path
     - run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
-    - name: Initialize the directory
-      uses: ./.github/actions/setup-libseccomp
+    - uses: actions/checkout@v2
+    - run: ./autogen.sh
+    - run: ./configure --enable-python
+    - run: make check-build
     - name: Automated tests
-      run: make check-build
+      run: make check
