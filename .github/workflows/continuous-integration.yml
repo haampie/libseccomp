@@ -44,16 +44,16 @@ jobs:
     - run: |
         case "${{ matrix.distro }}" in
           ubuntu*|jessie|stretch|buster)
-            apt-get update -q -y
-            apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
+            sudo apt-get update -q -y
+            sudo apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
             ;;
           fedora*)
-            dnf -y update
-            dnf -y install build-essential valgrind clang lcov gperf astyle codespell
+            sudo dnf -y update
+            sudo dnf -y install build-essential valgrind clang lcov gperf astyle codespell
             ;;
           alpine*)
-            apk update
-            apk add build-essential valgrind clang lcov gperf astyle codespell
+            sudo apk update
+            sudo apk add build-essential valgrind clang lcov gperf astyle codespell
             ;;
           esac
     - run: |
