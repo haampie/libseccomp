@@ -38,7 +38,7 @@ jobs:
           distro: ubuntu20.04
         - arch: amd64
           distro: ubuntu20.04
-        - arch: amd64
+        - arch: aarch64
           distro: fedora_latest
         
 
