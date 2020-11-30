@@ -38,6 +38,8 @@ jobs:
           distro: ubuntu20.04
         - arch: amd64
           distro: ubuntu20.04
+        - arch: amd64
+          distro: fedora_latest
         
 
     steps:
@@ -66,4 +68,12 @@ jobs:
     - run: ./configure --enable-python
     - run: make check-build
     - name: Automated tests
-      run: make check
+      run: LIBSECCOMP_TSTCFG_STRESSCNT=5 make check
+    - name: Live tests
+      run: LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check
+    - name: Scan build
+      if: ${{ matrix.arch == "amd64" }}
+      run: |
+        make clean
+        ./configure
+        scan-build --status-bugs make
