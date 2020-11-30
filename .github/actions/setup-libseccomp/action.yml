@@ -33,7 +33,7 @@ runs:
     shell: bash
   - run: ./autogen.sh
     shell: bash
-  - run: ./configure --enable-python
+  - run: ./configure
     shell: bash
   - run: make check-build
     shell: bash
