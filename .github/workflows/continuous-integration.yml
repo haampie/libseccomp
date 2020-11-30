@@ -36,8 +36,8 @@ jobs:
           distro: ubuntu20.04
         - arch: ppc64le
           distro: ubuntu20.04
-        - arch: amd64
-          distro: ubuntu20.04
+        #- arch: amd64
+        #  distro: ubuntu20.04
         - arch: aarch64
           distro: fedora_latest
         
