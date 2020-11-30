@@ -59,17 +59,17 @@ jobs:
         install: |
           case "${{ matrix.distro }}" in
             ubuntu*|jessie|stretch|buster)
-              sudo apt-get update -q -y
-              sudo apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
+              apt-get update -q -y
+              apt-get install -q -y build-essential valgrind clang lcov gperf astyle codespell
               ;;
             fedora*)
               cat /etc/fedora-release
-              sudo dnf -y update
-              sudo dnf -y install build-essential valgrind clang lcov gperf astyle codespell
+              dnf -y update
+              dnf -y install build-essential valgrind clang lcov gperf astyle codespell
               ;;
             alpine*)
-              sudo apk update
-              sudo apk add build-essential valgrind clang lcov gperf astyle codespell
+              apk update
+              apk add build-essential valgrind clang lcov gperf astyle codespell
               ;;
             esac
 
