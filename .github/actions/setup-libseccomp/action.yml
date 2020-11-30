@@ -20,11 +20,15 @@
 #
 
 name: Setup the libseccomp directory
-description: "Install dependencies and run autogen.sh"
+description: "Install dependencies, run autogen.sh, configure, and build"
 runs:
   using: "composite"
   steps:
   - run: sudo apt-get install build-essential valgrind clang lcov gperf astyle codespell
     shell: bash
   - run: ./autogen.sh
+    shell: bash
+  - run: ./configure --enable-python
+    shell: bash
+  - run: make check-build
     shell: bash
