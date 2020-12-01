@@ -29,11 +29,33 @@ jobs:
 
     steps:
     # cython is installed to the following path
-    - run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
-    - uses: actions/checkout@v2
-    - uses: ./.github/actions/setup-libseccomp
-    - name: Automated tests
-      run: LIBSECCOMP_TSTCFG_STRESSCNT=5 make check
+    - name: Add Cython to the path
+      run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
+    - name: Checkout from github
+      uses: actions/checkout@v2
+    - name: Configure and build
+      uses: ./.github/actions/setup-libseccomp
+    #- name: Run tests
+    #  uses: ./.github/actions/run-tests
+
+  aarch64:
+    name: Arm64
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout from github
+      uses: actions/checkout@v2
+    - name: Reset the arm64 container
+      run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
+    - uses: docker://multiarch/ubuntu-core:arm64-bionic
+      with:
+        args: >
+          sudo apt-get install build-essential valgrind clang lcov gperf astyle codespell
+          python -m pip install --upgrade pip
+          pip install cython
+          ./autogen.sh
+          ./configure --enable-python
+          make check-build
 #    - name: Live tests
 #      run: LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check
 #    - name: Scan build
