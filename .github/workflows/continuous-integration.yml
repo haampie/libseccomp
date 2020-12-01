@@ -51,12 +51,12 @@ jobs:
       run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
     - uses: docker://multiarch/ubuntu-core:arm64-bionic
       with:
-        args:
-          python -m pip install --upgrade pip
-    - uses: docker://multiarch/ubuntu-core:arm64-bionic
-      with:
-        args:
-          pip install cython
+        args: >
+          bash -c
+          "apt-get update &&
+          apt-get install -y python3.6 &&
+          python3.6 -m pip install --upgrade pip
+          pip install cython"
     - uses: docker://multiarch/ubuntu-core:arm64-bionic
       with:
         args:
