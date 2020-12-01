@@ -24,7 +24,7 @@ on: ["push", "pull_request"]
 
 jobs:
   runtests:
-    name: Libseccomp Tests
+    name: amd64
     runs-on: ubuntu-20.04
 
     steps:
@@ -35,8 +35,8 @@ jobs:
       uses: actions/checkout@v2
     - name: Configure and build
       uses: ./.github/actions/setup-libseccomp
-    #- name: Run tests
-    #  uses: ./.github/actions/run-tests
+    - name: Run tests
+      uses: ./.github/actions/run-tests
 
   aarch64:
     name: aarch64
@@ -45,7 +45,7 @@ jobs:
     steps:
     - name: Checkout from github
       uses: actions/checkout@v2
-    - name: Reset the arm64 container
+    - name: Reset the container
       run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
     - name: Install dependencies
       uses: docker://multiarch/ubuntu-core:arm64-bionic
@@ -53,7 +53,7 @@ jobs:
         args: >
           bash -c
           "apt-get update &&
-          apt-get install -y build-essential valgrind clang lcov gperf astyle codespell"
+          apt-get install -y build-essential dh-autoreconf valgrind clang lcov gperf astyle codespell"
     - name: Install cython
       uses: docker://multiarch/ubuntu-core:arm64-bionic
       with:
@@ -61,13 +61,23 @@ jobs:
           bash -c
           "apt-get update &&
           apt-get install -y python3.6 python-pip &&
-          pip install --upgrade pip
+          pip install --upgrade pip &&
           pip install cython"
     - name: Configure and build
       uses: docker://multiarch/ubuntu-core:arm64-bionic
       with:
         args: >
           bash -c "./autogen.sh && ./configure --enable-python && make check-build"
+    - name: Run tests
+      uses: docker://multiarch/ubuntu-core:arm64-bionic
+      with:
+        args: >
+          bash -c "LIBSECCOMP_TSTCFG_STRESSCNT=5 make check"
+    - name: Run live tests
+      uses: docker://multiarch/ubuntu-core:arm64-bionic
+      with:
+        args: >
+          bash -c "LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check"
 #    - name: Live tests
 #      run: LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check
 #    - name: Scan build
