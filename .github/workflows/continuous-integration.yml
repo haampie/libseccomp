@@ -53,7 +53,7 @@ jobs:
         args: >
           bash -c
           "apt-get update &&
-          apt-get install -y build-essential dh-autoreconf valgrind clang lcov gperf astyle codespell"
+          apt-get install -y build-essential automake valgrind clang lcov gperf astyle codespell"
     - name: Install cython
       uses: docker://multiarch/ubuntu-core:arm64-bionic
       with:
