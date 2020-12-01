@@ -45,12 +45,10 @@ jobs:
     steps:
     - name: Checkout from github
       uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt-get install build-essential valgrind clang lcov gperf astyle codespell
     - name: Reset the arm64 container
       run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
-    - uses: docker://multiarch/ubuntu-core:arm64-bionic
-      with:
-        args:
-          apt-get install build-essential valgrind clang lcov gperf astyle codespell
     - uses: docker://multiarch/ubuntu-core:arm64-bionic
       with:
         args:
