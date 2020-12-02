@@ -24,7 +24,7 @@ description: "Install dependencies, run autogen.sh, configure, and build"
 runs:
   using: "composite"
   steps:
-  - run: sudo apt-get install build-essential valgrind clang lcov gperf astyle codespell
+  - run: sudo apt-get install build-essential valgrind clang-tools lcov gperf astyle codespell
     shell: bash
   - run: |
       python -m pip install --upgrade pip
