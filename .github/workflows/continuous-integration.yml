@@ -54,14 +54,14 @@ jobs:
         args: >
           bash -c
           "apt-get update &&
-          apt-get install -y build-essential autoconf libtool valgrind clang lcov gperf astyle codespell &&
+          apt-get install -y build-essential autoconf libtool clang lcov gperf astyle codespell &&
           apt-get install -y python3.6 python3-distutils python3-setuptools python3-pip &&
           pip3 install --upgrade pip &&
           pip3 install cython &&
           ./autogen.sh &&
           ./configure --enable-python &&
           make check-build &&
-          LIBSECCOMP_TSTCFG_STRESSCNT=5 make check &&
+          make check &&
           LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check"
 #    - name: Live tests
 #      run: LIBSECCOMP_TSTCFG_TYPE=live LIBSECCOMP_TSTCFG_MODE_LIST=c make -C tests check
