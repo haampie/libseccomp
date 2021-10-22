@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* many syscalls, same chain */
-	for (iter = 100; iter < 200; iter++) {
+	for (iter = 100; iter < 168; iter++) {
 		rc = seccomp_rule_add_exact(ctx, SCMP_ACT_ALLOW, iter, 1,
 					    SCMP_A0(SCMP_CMP_NE, 0));
 		if (rc != 0)

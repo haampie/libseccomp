@@ -20,8 +20,8 @@ test type: bpf-sim
 05-sim-long_jumps	all,-x32	1001	N	N		N			N	N	N	KILL
 05-sim-long_jumps	all,-x32	99	1	N		N			N	N	N	KILL
 05-sim-long_jumps	all,-x32	100-105	1	N		N			N	N	N	ALLOW
-05-sim-long_jumps	all,-x32	195-199	1	N		N			N	N	N	ALLOW
-05-sim-long_jumps	all,-x32	200	1	N		N			N	N	N	KILL
+05-sim-long_jumps	all,-x32	163-167	1	N		N			N	N	N	ALLOW
+05-sim-long_jumps	all,-x32	168	1	N		N			N	N	N	KILL
 05-sim-long_jumps	all,-x32	3	N	N		N			N	N	N	KILL
 05-sim-long_jumps	all,-x32	4	1	2		3			4	5	6	ALLOW
 05-sim-long_jumps	all,-x32	5	N	N		N			N	N	N	KILL

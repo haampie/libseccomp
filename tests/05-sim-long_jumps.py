@@ -40,7 +40,7 @@ def test(args):
                            Arg(2, LT, sys.maxsize))
         i += 1
     i = 100
-    while i < 200:
+    while i < 168:
         f.add_rule_exactly(ALLOW, i,
                            Arg(0, NE, 0))
         i += 1
