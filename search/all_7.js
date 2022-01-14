@@ -1,13 +1,10 @@
 var searchData=
 [
-  ['scmp_5farg_5fcmp_24',['scmp_arg_cmp',['../structscmp__arg__cmp.html',1,'']]],
-  ['scmp_5fversion_25',['scmp_version',['../structscmp__version.html',1,'']]],
-  ['seccomp_5fdata_26',['seccomp_data',['../structseccomp__data.html',1,'']]],
-  ['seccomp_5fnotif_27',['seccomp_notif',['../structseccomp__notif.html',1,'']]],
-  ['seccomp_5fnotif_5fresp_28',['seccomp_notif_resp',['../structseccomp__notif__resp.html',1,'']]],
-  ['sim_5fstate_29',['sim_state',['../structsim__state.html',1,'']]],
-  ['size_5fand_5frc_30',['size_and_rc',['../structsize__and__rc.html',1,'']]],
-  ['sock_5ffilter_31',['sock_filter',['../structsock__filter.html',1,'']]],
-  ['stringpool_5ft_32',['stringpool_t',['../structstringpool__t.html',1,'']]],
-  ['syscall_5ferrno_33',['syscall_errno',['../structsyscall__errno.html',1,'']]]
+  ['filter_5fcnt_1042',['filter_cnt',['../structdb__filter__snap.html#a9ecdef93b7a1bbc097ed425894326c2b',1,'db_filter_snap::filter_cnt()'],['../structdb__filter__col.html#a4f9869d8b89c17cf04be35f32c597416',1,'db_filter_col::filter_cnt()']]],
+  ['filters_1043',['filters',['../structdb__filter__snap.html#aba7630ea2803b1e9d922aaea5fd4ac83',1,'db_filter_snap::filters()'],['../structdb__filter__col.html#afeeafd9fb7a989487a28b87e084febe0',1,'db_filter_col::filters()']]],
+  ['flag_5fdup_1044',['flag_dup',['../structbpf__blk.html#af884327efbca8ac99c075d1500b19e2a',1,'bpf_blk']]],
+  ['flag_5fhash_1045',['flag_hash',['../structbpf__blk.html#a24bfd5ec8bdf297a1a61ef6a35bd11f6',1,'bpf_blk']]],
+  ['flag_5funique_1046',['flag_unique',['../structbpf__blk.html#aed88055b828e610e3ab16e20e59354b9',1,'bpf_blk']]],
+  ['flags_1047',['flags',['../structseccomp__notif.html#ac8f011d91e61152cc5359d102d4d989d',1,'seccomp_notif::flags()'],['../structseccomp__notif__resp.html#afdc50611e5fc1ad950ed80f6d7621550',1,'seccomp_notif_resp::flags()'],['../structdb__iter__state.html#af51989ee06acf024630fc4a269889402',1,'db_iter_state::flags()']]],
+  ['found_1048',['found',['../structbpf__hash__bkt.html#ae13c2d4154caf36716d96935d2759ffd',1,'bpf_hash_bkt']]]
 ];

@@ -69,7 +69,7 @@ $(function() {
 <div class="title">system.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
+<a href="system_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="system_8h.html#a7296bf1bc336dbaa54947e10bf3e9826">    1</a></span>&#160; </div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="comment">/*</span></div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment"> * This library is free software; you can redistribute it and/or modify it</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment"> * under the terms of version 2.1 of the GNU Lesser General Public License as</span></div>
@@ -93,10 +93,10 @@ $(function() {
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &lt;linux/types.h&gt;</span></div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#include &lt;sys/prctl.h&gt;</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#include &lt;sys/ioctl.h&gt;</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;configure.h&quot;</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="configure_8h.html">configure.h</a>&quot;</span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">/* NOTE: this was taken from the Linux Kernel sources */</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#define MAX_ERRNO       4095</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="system_8h.html#a9998f145d5911cecdac6aa347ad08559">   34</a></span>&#160;<span class="preprocessor">#define MAX_ERRNO       4095</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">struct </span><a class="code" href="structdb__filter__col.html">db_filter_col</a>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
@@ -110,9 +110,9 @@ $(function() {
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">/* NOTE: the definitions below were taken from the Linux Kernel sources */</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">/* Valid values for seccomp.mode and prctl(PR_SET_SECCOMP, &lt;mode&gt;) */</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#define SECCOMP_MODE_DISABLED   0 </span><span class="comment">/* seccomp is not in use. */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#define SECCOMP_MODE_STRICT 1 </span><span class="comment">/* uses hard-coded filter. */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#define SECCOMP_MODE_FILTER 2 </span><span class="comment">/* uses user-supplied filter. */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="system_8h.html#adec3fc4905a17609e9abf29d3fd772e1">   48</a></span>&#160;<span class="preprocessor">#define SECCOMP_MODE_DISABLED   0 </span><span class="comment">/* seccomp is not in use. */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="system_8h.html#ac221ae7da99f973bdeb529b8b0b73454">   49</a></span>&#160;<span class="preprocessor">#define SECCOMP_MODE_STRICT 1 </span><span class="comment">/* uses hard-coded filter. */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="system_8h.html#ac98f9fb027964226b03d64c3a5cbe087">   50</a></span>&#160;<span class="preprocessor">#define SECCOMP_MODE_FILTER 2 </span><span class="comment">/* uses user-supplied filter. */</span><span class="preprocessor"></span></div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">/*</span></div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment"> * All BPF programs must return a 32-bit value.</span></div>
@@ -122,24 +122,24 @@ $(function() {
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"> * The ordering ensures that a min_t() over composed return values always</span></div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"> * selects the least permissive choice.</span></div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"> */</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#define SECCOMP_RET_KILL_PROCESS 0x80000000U </span><span class="comment">/* kill the process immediately */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor">#define SECCOMP_RET_KILL_THREAD 0x00000000U </span><span class="comment">/* kill the thread immediately */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#define SECCOMP_RET_KILL    SECCOMP_RET_KILL_THREAD </span><span class="comment">/* default to killing the thread */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#define SECCOMP_RET_TRAP    0x00030000U </span><span class="comment">/* disallow and force a SIGSYS */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">#define SECCOMP_RET_ERRNO   0x00050000U </span><span class="comment">/* returns an errno */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">#define SECCOMP_RET_USER_NOTIF  0x7fc00000U </span><span class="comment">/* notifies userspace */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor">#define SECCOMP_RET_TRACE   0x7ff00000U </span><span class="comment">/* pass to a tracer or disallow */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">#define SECCOMP_RET_ALLOW   0x7fff0000U </span><span class="comment">/* allow */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="system_8h.html#ad16e005888f2c435c9f108e1b0cb5a87">   60</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_KILL_PROCESS 0x80000000U </span><span class="comment">/* kill the process immediately */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="system_8h.html#aabbf194b689a614af425c847b2406aa4">   61</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_KILL_THREAD 0x00000000U </span><span class="comment">/* kill the thread immediately */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="system_8h.html#a619615b5d03400ad2b882bd6c326833a">   62</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_KILL    SECCOMP_RET_KILL_THREAD </span><span class="comment">/* default to killing the thread */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="system_8h.html#a64c96f849fe312dd777a8dbe683dda8a">   63</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_TRAP    0x00030000U </span><span class="comment">/* disallow and force a SIGSYS */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00064"></a><span class="lineno"><a class="line" href="system_8h.html#a92f80ce4712ae91d9a1d2a533cd2276b">   64</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_ERRNO   0x00050000U </span><span class="comment">/* returns an errno */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="system_8h.html#ab85cf2552cb62e9305fbceb40b3f47d7">   65</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_USER_NOTIF  0x7fc00000U </span><span class="comment">/* notifies userspace */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00066"></a><span class="lineno"><a class="line" href="system_8h.html#ae4e1ff683860f0e07b79a24fd12f249f">   66</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_TRACE   0x7ff00000U </span><span class="comment">/* pass to a tracer or disallow */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="system_8h.html#a6b3bae4baa7f2871919c5a169fa33ba8">   67</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_ALLOW   0x7fff0000U </span><span class="comment">/* allow */</span><span class="preprocessor"></span></div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">/* Masks for the return value sections. */</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#define SECCOMP_RET_ACTION  0x7fff0000U</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#define SECCOMP_RET_DATA    0x0000ffffU</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="system_8h.html#a6402766dbd60ec5b167b74914a6a47ac">   70</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_ACTION  0x7fff0000U</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="system_8h.html#a23c64fb1027c82929c602a2b21f9640a">   71</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_DATA    0x0000ffffU</span></div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
 <div class="line"><a name="l00082"></a><span class="lineno"><a class="line" href="structseccomp__data.html">   82</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structseccomp__data.html">seccomp_data</a> {</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">int</span> nr;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    __u32 arch;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    __u64 instruction_pointer;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    __u64 args[6];</div>
+<div class="line"><a name="l00083"></a><span class="lineno"><a class="line" href="structseccomp__data.html#ab7642152f90253f974478f5f37e7051d">   83</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="structseccomp__data.html#ab7642152f90253f974478f5f37e7051d">nr</a>;</div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="structseccomp__data.html#a3649cbc3a87f2735902177f58bcb2def">   84</a></span>&#160;    __u32 <a class="code" href="structseccomp__data.html#a3649cbc3a87f2735902177f58bcb2def">arch</a>;</div>
+<div class="line"><a name="l00085"></a><span class="lineno"><a class="line" href="structseccomp__data.html#a4947f381c8509e8f5f00d1b0c49e0c92">   85</a></span>&#160;    __u64 <a class="code" href="structseccomp__data.html#a4947f381c8509e8f5f00d1b0c49e0c92">instruction_pointer</a>;</div>
+<div class="line"><a name="l00086"></a><span class="lineno"><a class="line" href="structseccomp__data.html#aa7c467b1fb31fec6ab77718f7780d788">   86</a></span>&#160;    __u64 <a class="code" href="structseccomp__data.html#aa7c467b1fb31fec6ab77718f7780d788">args</a>[6];</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;};</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* HAVE_LINUX_SECCOMP_H */</span><span class="preprocessor"></span></div>
@@ -149,51 +149,51 @@ $(function() {
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">/* no new privs definitions */</span></div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#ifndef PR_SET_NO_NEW_PRIVS</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#define PR_SET_NO_NEW_PRIVS     38</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno"><a class="line" href="system_8h.html#aa6a8ddfe290b83f4a07a93fb6e036303">   96</a></span>&#160;<span class="preprocessor">#define PR_SET_NO_NEW_PRIVS     38</span></div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="preprocessor">#ifndef PR_GET_NO_NEW_PRIVS</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor">#define PR_GET_NO_NEW_PRIVS     39</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno"><a class="line" href="system_8h.html#a59e241cf2cd1645e2d939f03bf3026f9">  100</a></span>&#160;<span class="preprocessor">#define PR_GET_NO_NEW_PRIVS     39</span></div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment">/* operations for the seccomp() syscall */</span></div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="preprocessor">#ifndef SECCOMP_SET_MODE_STRICT</span></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="preprocessor">#define SECCOMP_SET_MODE_STRICT     0</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno"><a class="line" href="system_8h.html#ad24f7e73b79e2e470277f3e15f4e95c8">  105</a></span>&#160;<span class="preprocessor">#define SECCOMP_SET_MODE_STRICT     0</span></div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">#ifndef SECCOMP_SET_MODE_FILTER</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor">#define SECCOMP_SET_MODE_FILTER     1</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno"><a class="line" href="system_8h.html#a2223c8ccebd78d2af0035b782190d5d2">  108</a></span>&#160;<span class="preprocessor">#define SECCOMP_SET_MODE_FILTER     1</span></div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="preprocessor">#ifndef SECCOMP_GET_ACTION_AVAIL</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="preprocessor">#define SECCOMP_GET_ACTION_AVAIL    2</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno"><a class="line" href="system_8h.html#a16887231d336fb1f28fd3662b5db5004">  111</a></span>&#160;<span class="preprocessor">#define SECCOMP_GET_ACTION_AVAIL    2</span></div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="preprocessor">#ifndef SECCOMP_GET_NOTIF_SIZES</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="preprocessor">#define SECCOMP_GET_NOTIF_SIZES     3</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno"><a class="line" href="system_8h.html#ae2c409ef3460e22b2603e9db81f30d50">  114</a></span>&#160;<span class="preprocessor">#define SECCOMP_GET_NOTIF_SIZES     3</span></div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">/* flags for the seccomp() syscall */</span></div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="preprocessor">#ifndef SECCOMP_FILTER_FLAG_TSYNC</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_TSYNC       (1UL &lt;&lt; 0)</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno"><a class="line" href="system_8h.html#a3872148c81569a66a5b1dc1710cb7c63">  119</a></span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_TSYNC       (1UL &lt;&lt; 0)</span></div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="preprocessor">#ifndef SECCOMP_FILTER_FLAG_LOG</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_LOG         (1UL &lt;&lt; 1)</span></div>
+<div class="line"><a name="l00122"></a><span class="lineno"><a class="line" href="system_8h.html#acb12cce517160134886c7550db5ac3e5">  122</a></span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_LOG         (1UL &lt;&lt; 1)</span></div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="preprocessor">#ifndef SECCOMP_FILTER_FLAG_SPEC_ALLOW</span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_SPEC_ALLOW      (1UL &lt;&lt; 2)</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno"><a class="line" href="system_8h.html#a350c0a9192de8d322d780b9e829c83bb">  125</a></span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_SPEC_ALLOW      (1UL &lt;&lt; 2)</span></div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="preprocessor">#ifndef SECCOMP_FILTER_FLAG_NEW_LISTENER</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_NEW_LISTENER    (1UL &lt;&lt; 3)</span></div>
+<div class="line"><a name="l00128"></a><span class="lineno"><a class="line" href="system_8h.html#ab7fa00fc700aea6c58714cea62974283">  128</a></span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_NEW_LISTENER    (1UL &lt;&lt; 3)</span></div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor">#ifndef SECCOMP_FILTER_FLAG_TSYNC_ESRCH</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_TSYNC_ESRCH     (1UL &lt;&lt; 4)</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno"><a class="line" href="system_8h.html#a36617368dcfe11ec00598d04eedcb557">  131</a></span>&#160;<span class="preprocessor">#define SECCOMP_FILTER_FLAG_TSYNC_ESRCH     (1UL &lt;&lt; 4)</span></div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="preprocessor">#ifndef SECCOMP_RET_LOG</span></div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="preprocessor">#define SECCOMP_RET_LOG         0x7ffc0000U </span><span class="comment">/* allow after logging */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00135"></a><span class="lineno"><a class="line" href="system_8h.html#a8bd9f31f7a2708c711bd966acdbc8283">  135</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_LOG         0x7ffc0000U </span><span class="comment">/* allow after logging */</span><span class="preprocessor"></span></div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160; </div>
 <div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="comment">/* SECCOMP_RET_ACTION_FULL was added in kernel v4.14. */</span></div>
 <div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="preprocessor">#ifndef SECCOMP_RET_ACTION_FULL</span></div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;<span class="preprocessor">#define SECCOMP_RET_ACTION_FULL     0xffff0000U</span></div>
+<div class="line"><a name="l00140"></a><span class="lineno"><a class="line" href="system_8h.html#ac228d644a44ef8d527b52285c347da2c">  140</a></span>&#160;<span class="preprocessor">#define SECCOMP_RET_ACTION_FULL     0xffff0000U</span></div>
 <div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160; </div>
 <div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;<span class="comment">/* SECCOMP_RET_LOG was added in kernel v4.14. */</span></div>
@@ -212,17 +212,17 @@ $(function() {
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;};</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160; </div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="keyword">struct </span><a class="code" href="structseccomp__notif.html">seccomp_notif</a> {</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    __u64 id;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    __u32 pid;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    __u32 flags;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keyword">struct </span><a class="code" href="structseccomp__data.html">seccomp_data</a> data;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    __u64 <a class="code" href="structseccomp__notif.html#aa4f6b3306640e6f39a7044f566adf05e">id</a>;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    __u32 <a class="code" href="structseccomp__notif.html#a905437e81a6ba7c28732b10a5a8820f2">pid</a>;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    __u32 <a class="code" href="structseccomp__notif.html#ac8f011d91e61152cc5359d102d4d989d">flags</a>;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keyword">struct </span><a class="code" href="structseccomp__data.html">seccomp_data</a> <a class="code" href="structseccomp__notif.html#a922af1980ee54c7b67d9420606f0a57f">data</a>;</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;};</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160; </div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="keyword">struct </span><a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a> {</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    __u64 id;</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    __s64 val;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    __s32 error;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    __u32 flags;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    __u64 <a class="code" href="structseccomp__notif__resp.html#a0653d48f68a54ea9f260d89e01dffa30">id</a>;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    __s64 <a class="code" href="structseccomp__notif__resp.html#a6238a12c248c0e561e0eec5cc35e6a71">val</a>;</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    __s32 <a class="code" href="structseccomp__notif__resp.html#a002ffe7a4a5718a3322a48c410de32dd">error</a>;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    __u32 <a class="code" href="structseccomp__notif__resp.html#afdc50611e5fc1ad950ed80f6d7621550">flags</a>;</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;};</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160; </div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="preprocessor">#define SECCOMP_IOC_MAGIC               &#39;!&#39;</span></div>
@@ -239,33 +239,59 @@ $(function() {
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* SECCOMP_RET_USER_NOTIF */</span><span class="preprocessor"></span></div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160; </div>
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment">/* non-public ioctl number for backwards compat (see system.c) */</span></div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="preprocessor">#define SECCOMP_IOCTL_NOTIF_ID_VALID_WRONG_DIR SECCOMP_IOR(2, __u64)</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno"><a class="line" href="system_8h.html#acf20f115f5b48987a1339639f77076a7">  186</a></span>&#160;<span class="preprocessor">#define SECCOMP_IOCTL_NOTIF_ID_VALID_WRONG_DIR SECCOMP_IOR(2, __u64)</span></div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160; </div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="keywordtype">void</span> sys_reset_state(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#ae0d58b0995e3ff016989be34867e55be">sys_reset_state</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160; </div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="keywordtype">int</span> sys_chk_seccomp_syscall(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="keywordtype">void</span> sys_set_seccomp_syscall(<span class="keywordtype">bool</span> enable);</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a9681767625723b9f5eefa3c1479ef922">sys_chk_seccomp_syscall</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#acb0502a3e011199e88b9a62ac0094adb">sys_set_seccomp_syscall</a>(<span class="keywordtype">bool</span> enable);</div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160; </div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="keywordtype">int</span> sys_chk_seccomp_action(uint32_t action);</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="keywordtype">void</span> sys_set_seccomp_action(uint32_t action, <span class="keywordtype">bool</span> enable);</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a1bfb57aecfbc6d6c5d5e7ac1b9a15795">sys_chk_seccomp_action</a>(uint32_t action);</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a3029e6322393bfd7d47d1fc2ba0a4fc3">sys_set_seccomp_action</a>(uint32_t action, <span class="keywordtype">bool</span> enable);</div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160; </div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="keywordtype">int</span> sys_chk_seccomp_flag(<span class="keywordtype">int</span> flag);</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="keywordtype">void</span> sys_set_seccomp_flag(<span class="keywordtype">int</span> flag, <span class="keywordtype">bool</span> enable);</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a519afb82cac2f23ffa1a4f2ae0cc1c2e">sys_chk_seccomp_flag</a>(<span class="keywordtype">int</span> flag);</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a4df78b28d726158fea7a08756c9acf15">sys_set_seccomp_flag</a>(<span class="keywordtype">int</span> flag, <span class="keywordtype">bool</span> enable);</div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160; </div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="keywordtype">int</span> sys_filter_load(<span class="keyword">struct</span> <a class="code" href="structdb__filter__col.html">db_filter_col</a> *col, <span class="keywordtype">bool</span> rawrc);</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a9fe3b09e97473583246275b02f91f95a">sys_filter_load</a>(<span class="keyword">struct</span> <a class="code" href="structdb__filter__col.html">db_filter_col</a> *col, <span class="keywordtype">bool</span> rawrc);</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="keywordtype">int</span> sys_notify_fd(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="keywordtype">int</span> sys_notify_alloc(<span class="keyword">struct</span> <a class="code" href="structseccomp__notif.html">seccomp_notif</a> **req,</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a500bd23df908ddcf42055675d30e98a7">sys_notify_fd</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a4031b7d2a67f9263da5e5aaa849c2ac8">sys_notify_alloc</a>(<span class="keyword">struct</span> <a class="code" href="structseccomp__notif.html">seccomp_notif</a> **req,</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;             <span class="keyword">struct</span> <a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a> **resp);</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordtype">int</span> sys_notify_receive(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> <a class="code" href="structseccomp__notif.html">seccomp_notif</a> *req);</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keywordtype">int</span> sys_notify_respond(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> <a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a> *resp);</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keywordtype">int</span> sys_notify_id_valid(<span class="keywordtype">int</span> fd, uint64_t <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a72097a60fa7cacf5a106b2dd7e05667f">sys_notify_receive</a>(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> <a class="code" href="structseccomp__notif.html">seccomp_notif</a> *req);</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#afea7c11329a834cee68c4ad0b9fd578d">sys_notify_respond</a>(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> <a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a> *resp);</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#aa8f60115784f7032ac3e09494319c872">sys_notify_id_valid</a>(<span class="keywordtype">int</span> fd, uint64_t <span class="keywordtype">id</span>);</div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="astructdb__filter__col_html"><div class="ttname"><a href="structdb__filter__col.html">db_filter_col</a></div><div class="ttdef"><b>Definition:</b> db.h:148</div></div>
-<div class="ttc" id="astructseccomp__data_html"><div class="ttname"><a href="structseccomp__data.html">seccomp_data</a></div><div class="ttdef"><b>Definition:</b> system.h:82</div></div>
-<div class="ttc" id="astructseccomp__notif__resp_html"><div class="ttname"><a href="structseccomp__notif__resp.html">seccomp_notif_resp</a></div><div class="ttdef"><b>Definition:</b> seccomp.h:384</div></div>
-<div class="ttc" id="astructseccomp__notif_html"><div class="ttname"><a href="structseccomp__notif.html">seccomp_notif</a></div><div class="ttdef"><b>Definition:</b> seccomp.h:377</div></div>
-<div class="ttc" id="astructsock__filter_html"><div class="ttname"><a href="structsock__filter.html">sock_filter</a></div><div class="ttdef"><b>Definition:</b> bpf.h:50</div></div>
+<div class="ttc" id="aconfigure_8h_html"><div class="ttname"><a href="configure_8h.html">configure.h</a></div></div>
+<div class="ttc" id="astructdb__filter__col_html"><div class="ttname"><a href="structdb__filter__col.html">db_filter_col</a></div><div class="ttdef"><b>Definition:</b> <a href="db_8h_source.html#l00148">db.h:148</a></div></div>
+<div class="ttc" id="astructseccomp__data_html"><div class="ttname"><a href="structseccomp__data.html">seccomp_data</a></div><div class="ttdef"><b>Definition:</b> <a href="system_8h_source.html#l00082">system.h:82</a></div></div>
+<div class="ttc" id="astructseccomp__data_html_a3649cbc3a87f2735902177f58bcb2def"><div class="ttname"><a href="structseccomp__data.html#a3649cbc3a87f2735902177f58bcb2def">seccomp_data::arch</a></div><div class="ttdeci">__u32 arch</div><div class="ttdef"><b>Definition:</b> <a href="system_8h_source.html#l00084">system.h:84</a></div></div>
+<div class="ttc" id="astructseccomp__data_html_a4947f381c8509e8f5f00d1b0c49e0c92"><div class="ttname"><a href="structseccomp__data.html#a4947f381c8509e8f5f00d1b0c49e0c92">seccomp_data::instruction_pointer</a></div><div class="ttdeci">__u64 instruction_pointer</div><div class="ttdef"><b>Definition:</b> <a href="system_8h_source.html#l00085">system.h:85</a></div></div>
+<div class="ttc" id="astructseccomp__data_html_aa7c467b1fb31fec6ab77718f7780d788"><div class="ttname"><a href="structseccomp__data.html#aa7c467b1fb31fec6ab77718f7780d788">seccomp_data::args</a></div><div class="ttdeci">__u64 args[6]</div><div class="ttdef"><b>Definition:</b> <a href="system_8h_source.html#l00086">system.h:86</a></div></div>
+<div class="ttc" id="astructseccomp__data_html_ab7642152f90253f974478f5f37e7051d"><div class="ttname"><a href="structseccomp__data.html#ab7642152f90253f974478f5f37e7051d">seccomp_data::nr</a></div><div class="ttdeci">int nr</div><div class="ttdef"><b>Definition:</b> <a href="system_8h_source.html#l00083">system.h:83</a></div></div>
+<div class="ttc" id="astructseccomp__notif__resp_html"><div class="ttname"><a href="structseccomp__notif__resp.html">seccomp_notif_resp</a></div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00404">seccomp.h:404</a></div></div>
+<div class="ttc" id="astructseccomp__notif__resp_html_a002ffe7a4a5718a3322a48c410de32dd"><div class="ttname"><a href="structseccomp__notif__resp.html#a002ffe7a4a5718a3322a48c410de32dd">seccomp_notif_resp::error</a></div><div class="ttdeci">__s32 error</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00407">seccomp.h:407</a></div></div>
+<div class="ttc" id="astructseccomp__notif__resp_html_a0653d48f68a54ea9f260d89e01dffa30"><div class="ttname"><a href="structseccomp__notif__resp.html#a0653d48f68a54ea9f260d89e01dffa30">seccomp_notif_resp::id</a></div><div class="ttdeci">__u64 id</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00405">seccomp.h:405</a></div></div>
+<div class="ttc" id="astructseccomp__notif__resp_html_a6238a12c248c0e561e0eec5cc35e6a71"><div class="ttname"><a href="structseccomp__notif__resp.html#a6238a12c248c0e561e0eec5cc35e6a71">seccomp_notif_resp::val</a></div><div class="ttdeci">__s64 val</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00406">seccomp.h:406</a></div></div>
+<div class="ttc" id="astructseccomp__notif__resp_html_afdc50611e5fc1ad950ed80f6d7621550"><div class="ttname"><a href="structseccomp__notif__resp.html#afdc50611e5fc1ad950ed80f6d7621550">seccomp_notif_resp::flags</a></div><div class="ttdeci">__u32 flags</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00408">seccomp.h:408</a></div></div>
+<div class="ttc" id="astructseccomp__notif_html"><div class="ttname"><a href="structseccomp__notif.html">seccomp_notif</a></div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00397">seccomp.h:397</a></div></div>
+<div class="ttc" id="astructseccomp__notif_html_a905437e81a6ba7c28732b10a5a8820f2"><div class="ttname"><a href="structseccomp__notif.html#a905437e81a6ba7c28732b10a5a8820f2">seccomp_notif::pid</a></div><div class="ttdeci">__u32 pid</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00399">seccomp.h:399</a></div></div>
+<div class="ttc" id="astructseccomp__notif_html_a922af1980ee54c7b67d9420606f0a57f"><div class="ttname"><a href="structseccomp__notif.html#a922af1980ee54c7b67d9420606f0a57f">seccomp_notif::data</a></div><div class="ttdeci">struct seccomp_data data</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00400">seccomp.h:401</a></div></div>
+<div class="ttc" id="astructseccomp__notif_html_aa4f6b3306640e6f39a7044f566adf05e"><div class="ttname"><a href="structseccomp__notif.html#aa4f6b3306640e6f39a7044f566adf05e">seccomp_notif::id</a></div><div class="ttdeci">__u64 id</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00398">seccomp.h:398</a></div></div>
+<div class="ttc" id="astructseccomp__notif_html_ac8f011d91e61152cc5359d102d4d989d"><div class="ttname"><a href="structseccomp__notif.html#ac8f011d91e61152cc5359d102d4d989d">seccomp_notif::flags</a></div><div class="ttdeci">__u32 flags</div><div class="ttdef"><b>Definition:</b> <a href="seccomp_8h_source.html#l00400">seccomp.h:400</a></div></div>
+<div class="ttc" id="astructsock__filter_html"><div class="ttname"><a href="structsock__filter.html">sock_filter</a></div><div class="ttdef"><b>Definition:</b> <a href="bpf_8h_source.html#l00050">bpf.h:50</a></div></div>
+<div class="ttc" id="asystem_8h_html_a1bfb57aecfbc6d6c5d5e7ac1b9a15795"><div class="ttname"><a href="system_8h.html#a1bfb57aecfbc6d6c5d5e7ac1b9a15795">sys_chk_seccomp_action</a></div><div class="ttdeci">int sys_chk_seccomp_action(uint32_t action)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00181">system.c:181</a></div></div>
+<div class="ttc" id="asystem_8h_html_a3029e6322393bfd7d47d1fc2ba0a4fc3"><div class="ttname"><a href="system_8h.html#a3029e6322393bfd7d47d1fc2ba0a4fc3">sys_set_seccomp_action</a></div><div class="ttdeci">void sys_set_seccomp_action(uint32_t action, bool enable)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00241">system.c:241</a></div></div>
+<div class="ttc" id="asystem_8h_html_a4031b7d2a67f9263da5e5aaa849c2ac8"><div class="ttname"><a href="system_8h.html#a4031b7d2a67f9263da5e5aaa849c2ac8">sys_notify_alloc</a></div><div class="ttdeci">int sys_notify_alloc(struct seccomp_notif **req, struct seccomp_notif_resp **resp)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00451">system.c:451</a></div></div>
+<div class="ttc" id="asystem_8h_html_a4df78b28d726158fea7a08756c9acf15"><div class="ttname"><a href="system_8h.html#a4df78b28d726158fea7a08756c9acf15">sys_set_seccomp_flag</a></div><div class="ttdeci">void sys_set_seccomp_flag(int flag, bool enable)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00324">system.c:324</a></div></div>
+<div class="ttc" id="asystem_8h_html_a500bd23df908ddcf42055675d30e98a7"><div class="ttname"><a href="system_8h.html#a500bd23df908ddcf42055675d30e98a7">sys_notify_fd</a></div><div class="ttdeci">int sys_notify_fd(void)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00436">system.c:436</a></div></div>
+<div class="ttc" id="asystem_8h_html_a519afb82cac2f23ffa1a4f2ae0cc1c2e"><div class="ttname"><a href="system_8h.html#a519afb82cac2f23ffa1a4f2ae0cc1c2e">sys_chk_seccomp_flag</a></div><div class="ttdeci">int sys_chk_seccomp_flag(int flag)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00287">system.c:287</a></div></div>
+<div class="ttc" id="asystem_8h_html_a72097a60fa7cacf5a106b2dd7e05667f"><div class="ttname"><a href="system_8h.html#a72097a60fa7cacf5a106b2dd7e05667f">sys_notify_receive</a></div><div class="ttdeci">int sys_notify_receive(int fd, struct seccomp_notif *req)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00496">system.c:496</a></div></div>
+<div class="ttc" id="asystem_8h_html_a9681767625723b9f5eefa3c1479ef922"><div class="ttname"><a href="system_8h.html#a9681767625723b9f5eefa3c1479ef922">sys_chk_seccomp_syscall</a></div><div class="ttdeci">int sys_chk_seccomp_syscall(void)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00112">system.c:112</a></div></div>
+<div class="ttc" id="asystem_8h_html_a9fe3b09e97473583246275b02f91f95a"><div class="ttname"><a href="system_8h.html#a9fe3b09e97473583246275b02f91f95a">sys_filter_load</a></div><div class="ttdeci">int sys_filter_load(struct db_filter_col *col, bool rawrc)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00356">system.c:356</a></div></div>
+<div class="ttc" id="asystem_8h_html_aa8f60115784f7032ac3e09494319c872"><div class="ttname"><a href="system_8h.html#aa8f60115784f7032ac3e09494319c872">sys_notify_id_valid</a></div><div class="ttdeci">int sys_notify_id_valid(int fd, uint64_t id)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00536">system.c:536</a></div></div>
+<div class="ttc" id="asystem_8h_html_acb0502a3e011199e88b9a62ac0094adb"><div class="ttname"><a href="system_8h.html#acb0502a3e011199e88b9a62ac0094adb">sys_set_seccomp_syscall</a></div><div class="ttdeci">void sys_set_seccomp_syscall(bool enable)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00168">system.c:168</a></div></div>
+<div class="ttc" id="asystem_8h_html_ae0d58b0995e3ff016989be34867e55be"><div class="ttname"><a href="system_8h.html#ae0d58b0995e3ff016989be34867e55be">sys_reset_state</a></div><div class="ttdeci">void sys_reset_state(void)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00084">system.c:84</a></div></div>
+<div class="ttc" id="asystem_8h_html_afea7c11329a834cee68c4ad0b9fd578d"><div class="ttname"><a href="system_8h.html#afea7c11329a834cee68c4ad0b9fd578d">sys_notify_respond</a></div><div class="ttdeci">int sys_notify_respond(int fd, struct seccomp_notif_resp *resp)</div><div class="ttdef"><b>Definition:</b> <a href="system_8c_source.html#l00517">system.c:517</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
