@@ -206,19 +206,19 @@ $(function() {
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;<span class="preprocessor">#define SECCOMP_RET_USER_NOTIF      0x7fc00000U</span></div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160; </div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="keyword">struct </span>seccomp_notif_sizes {</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    __u16 seccomp_notif;</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    __u16 seccomp_notif_resp;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    __u16 <a class="code" href="structseccomp__notif.html">seccomp_notif</a>;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    __u16 <a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a>;</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    __u16 <a class="code" href="structseccomp__data.html">seccomp_data</a>;</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;};</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160; </div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="keyword">struct </span>seccomp_notif {</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="keyword">struct </span><a class="code" href="structseccomp__notif.html">seccomp_notif</a> {</div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    __u64 id;</div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    __u32 pid;</div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    __u32 flags;</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keyword">struct </span><a class="code" href="structseccomp__data.html">seccomp_data</a> data;</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;};</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160; </div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="keyword">struct </span>seccomp_notif_resp {</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="keyword">struct </span><a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a> {</div>
 <div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    __u64 id;</div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    __s64 val;</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    __s32 error;</div>
@@ -255,14 +255,16 @@ $(function() {
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="keywordtype">int</span> sys_filter_load(<span class="keyword">struct</span> <a class="code" href="structdb__filter__col.html">db_filter_col</a> *col, <span class="keywordtype">bool</span> rawrc);</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="keywordtype">int</span> sys_notify_fd(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="keywordtype">int</span> sys_notify_alloc(<span class="keyword">struct</span> seccomp_notif **req,</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;             <span class="keyword">struct</span> seccomp_notif_resp **resp);</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordtype">int</span> sys_notify_receive(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> seccomp_notif *req);</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keywordtype">int</span> sys_notify_respond(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> seccomp_notif_resp *resp);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="keywordtype">int</span> sys_notify_alloc(<span class="keyword">struct</span> <a class="code" href="structseccomp__notif.html">seccomp_notif</a> **req,</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;             <span class="keyword">struct</span> <a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a> **resp);</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordtype">int</span> sys_notify_receive(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> <a class="code" href="structseccomp__notif.html">seccomp_notif</a> *req);</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keywordtype">int</span> sys_notify_respond(<span class="keywordtype">int</span> fd, <span class="keyword">struct</span> <a class="code" href="structseccomp__notif__resp.html">seccomp_notif_resp</a> *resp);</div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keywordtype">int</span> sys_notify_id_valid(<span class="keywordtype">int</span> fd, uint64_t <span class="keywordtype">id</span>);</div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="astructdb__filter__col_html"><div class="ttname"><a href="structdb__filter__col.html">db_filter_col</a></div><div class="ttdef"><b>Definition:</b> db.h:148</div></div>
 <div class="ttc" id="astructseccomp__data_html"><div class="ttname"><a href="structseccomp__data.html">seccomp_data</a></div><div class="ttdef"><b>Definition:</b> system.h:82</div></div>
+<div class="ttc" id="astructseccomp__notif__resp_html"><div class="ttname"><a href="structseccomp__notif__resp.html">seccomp_notif_resp</a></div><div class="ttdef"><b>Definition:</b> seccomp.h:384</div></div>
+<div class="ttc" id="astructseccomp__notif_html"><div class="ttname"><a href="structseccomp__notif.html">seccomp_notif</a></div><div class="ttdef"><b>Definition:</b> seccomp.h:377</div></div>
 <div class="ttc" id="astructsock__filter_html"><div class="ttname"><a href="structsock__filter.html">sock_filter</a></div><div class="ttdef"><b>Definition:</b> bpf.h:50</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
