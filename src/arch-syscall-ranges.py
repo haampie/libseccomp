@@ -3,8 +3,10 @@
 KERNEL_DICT = {
         "KV_PRE_5_17": 0,
         "KV_5_17": 1,
+        "KV_5_18": 2,
 
         "KV_UNDEF": -1,
+        "KV_UNKNOWN": -2,
 }
 
 
@@ -13,6 +15,8 @@ class Arch(object):
         self.name = name
         self.syscall_nums = list()
         self.introduced_version = list()
+        self.ranges = dict()
+        self.valid = True
 
     def __str__(self):
         out_str = 'Architecture {}\n'.format(self.name)
@@ -123,6 +127,59 @@ def parse_introduced_data(settings, line, line_num):
             kernel_enum = KERNEL_DICT[col]
             settings.arch[idx - 1].introduced_version.append(kernel_enum)
 
+            if kernel_enum == KERNEL_DICT['KV_UNKNOWN']:
+                # The date this syscall for this architecture was introduced
+                # into the kernel is unknown.  Invalidate the entire arch
+                settings.arch[idx - 1].valid = False
+
+def convert_list_to_ranges(arch, sorted_syscall_nums):
+    start = None
+    end = None
+    ranges = list()
+
+    for idx, syscall_num in enumerate(sorted_syscall_nums):
+        if start is None:
+            start = syscall_num
+            continue
+
+        if syscall_num <= start:
+            raise ArithmeticError(
+                    'Unexpected syscall number.  start is {}, but the next'
+                    ' number in the list, {}, is <= start'.format(
+                    start, syscall_num))
+
+        if syscall_num > sorted_syscall_nums[idx - 1] + 1:
+            # We have jumped at least two syscall numbers
+            ranges.append([start, sorted_syscall_nums[idx - 1]])
+            start = syscall_num
+
+    # The last range was never ended in the for loop.  Append it now
+    ranges.append([start, sorted_syscall_nums[-1]])
+
+    return ranges
+
+
+def build_ranges(arch):
+    if not arch.valid:
+        return
+
+    if arch.name != 'x86_64':
+        return
+
+    for key in KERNEL_DICT:
+        valid_syscall_nums = list()
+
+        for idx, syscall_num in enumerate(arch.syscall_nums):
+            if arch.introduced_version[idx] >= 0 and \
+               arch.introduced_version[idx] <= KERNEL_DICT[key]:
+                valid_syscall_nums.append(int(syscall_num))
+
+        if len(valid_syscall_nums) > 0:
+            valid_syscall_nums.sort()
+            arch.ranges[key] = convert_list_to_ranges(arch, valid_syscall_nums)
+            print(arch.ranges[key])
+
+
 if __name__ == '__main__':
     with open('syscalls.csv', 'r') as f:
         for idx, line in enumerate(f):
@@ -138,5 +195,5 @@ if __name__ == '__main__':
             else:
                 parse_introduced_data(settings, line, idx)
 
-    for idx, arch in enumerate(settings.arch):
-        print(arch)
+    for arch in settings.arch:
+        build_ranges(arch)
