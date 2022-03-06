@@ -59,6 +59,11 @@ class Arch(object):
         # e.g. self.syscall_dict['utime'] = 143
         self.syscall_dict = dict()
 
+        # a dictionary of commit hashes and their earliest tag.  this is
+        # purely a performance optimization
+        self.commit_tag_dict = dict()
+
+
     def run_git_blame(self):
         cmd = 'pushd {} > /dev/null 2>&1;' \
               'git blame {};' \
@@ -99,7 +104,11 @@ class Arch(object):
             return
 
         commit_hash = self.get_commit_hash(syscall_name)
-        tag = self.find_oldest_tag(commit_hash)
+        try:
+            tag = self.commit_tag_dict[commit_hash]
+        except KeyError as ke:
+            tag = self.find_oldest_tag(commit_hash)
+            self.commit_tag_dict[commit_hash] = tag
 
         try:
             kernel_enum = KERNEL_DICT[tag]
