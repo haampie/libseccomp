@@ -2,7 +2,9 @@
 import abc
 import os
 import subprocess
+import sys
 
+# The 'v' has been intentionally omitted to allow for mathematical comparisons
 FIRST_KNOWN_KERNEL = 5.04
 KERNEL_DICT = {
         'v5.04': 'KV_5_04',
@@ -105,6 +107,7 @@ class Arch(object):
 
         commit_hash = self.get_commit_hash(syscall_name)
         try:
+            # check if we have already determined the tag for this commit
             tag = self.commit_tag_dict[commit_hash]
         except KeyError as ke:
             tag = self.find_oldest_tag(commit_hash)
@@ -177,6 +180,7 @@ def parse_introduced_header(line):
 
 
 def parse_introduced_data(line, line_num):
+    error_cnt = 0
     cols = line.split(',')
     if len(cols) != len(validators):
         raise IndexError(
@@ -185,7 +189,6 @@ def parse_introduced_data(line, line_num):
                 len(cols), len(validators)))
 
     for idx, col in enumerate(cols):
-        error_cnt = 0
         col = col.strip()
 
         if idx == 0:
@@ -195,13 +198,17 @@ def parse_introduced_data(line, line_num):
                 if not validators[idx].validate(syscall_name, col):
                     error_cnt += 1
 
+    return error_cnt
+
 
 if __name__ == '__main__':
+    error_cnt = 0
+
     with open('introduced.csv', 'r') as f:
         for idx, line in enumerate(f):
             if idx == 0:
                 parse_introduced_header(line)
             else:
-                error_cnt = parse_introduced_data(line, idx)
+                error_cnt += parse_introduced_data(line, idx)
 
     sys.exit(error_cnt)
