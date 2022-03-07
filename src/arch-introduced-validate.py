@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import abc
+import argparse
 import os
 import subprocess
 import sys
@@ -21,6 +22,19 @@ KERNEL_DICT = {
         'v5.15': 'KV_5_15',
         'v5.16': 'KV_5_16',
 }
+
+def parse_args():
+    parser = argparse.ArgumentParser("Validate when syscalls were added to the kernel")
+
+    parser.add_argument(
+                        '-k', '--kernelpath',
+                        help='path to the Linux kernel source',
+                        required=True,
+                        type=str,
+                        default=None
+                       )
+
+    return parser.parse_args()
 
 def run(command, shell=True):
     if shell:
@@ -50,9 +64,7 @@ def run(command, shell=True):
 
 class Arch(object):
     def __init__(self):
-        #self.kernel_path = None
-        # HACK
-        self.kernel_path = '/home/thromatka/git/clean/upstream-torvalds'
+        self._kernel_path = None
         self.syscall_file = None
         self.git_blame = None
         self.arch_name = None
@@ -65,8 +77,19 @@ class Arch(object):
         # purely a performance optimization
         self.commit_tag_dict = dict()
 
+    @property
+    def kernel_path(self):
+        return self._kernel_path
+
+    @kernel_path.setter
+    def kernel_path(self, path):
+        self._kernel_path = path
+        self.run_git_blame()
 
     def run_git_blame(self):
+        if not self.kernel_path:
+            return
+
         cmd = 'pushd {} > /dev/null 2>&1;' \
               'git blame {};' \
               'popd'.format(self.kernel_path, self.syscall_file)
@@ -131,8 +154,7 @@ class Arch(object):
 class Arch_x86_64(Arch):
     def __init__(self):
         super().__init__()
-        self.syscall_file = os.path.join(self.kernel_path,
-                'arch/x86/entry/syscalls/syscall_64.tbl')
+        self.syscall_file = 'arch/x86/entry/syscalls/syscall_64.tbl'
         self.run_git_blame()
         self.arch_name = 'x86_64'
 
@@ -172,14 +194,15 @@ validators = [
         None,           # column 16
 ]
 
-def parse_introduced_header(line):
+def parse_introduced_header(args, line):
     cols = line.split(',')
     for idx, col in enumerate(cols):
         if validators[idx] is not None:
+            validators[idx].kernel_path = args.kernelpath
             validators[idx].build_syscall_dict()
 
 
-def parse_introduced_data(line, line_num):
+def parse_introduced_data(line):
     error_cnt = 0
     cols = line.split(',')
     if len(cols) != len(validators):
@@ -204,11 +227,13 @@ def parse_introduced_data(line, line_num):
 if __name__ == '__main__':
     error_cnt = 0
 
+    args = parse_args()
+
     with open('introduced.csv', 'r') as f:
         for idx, line in enumerate(f):
             if idx == 0:
-                parse_introduced_header(line)
+                parse_introduced_header(args, line)
             else:
-                error_cnt += parse_introduced_data(line, idx)
+                error_cnt += parse_introduced_data(line)
 
     sys.exit(error_cnt)
