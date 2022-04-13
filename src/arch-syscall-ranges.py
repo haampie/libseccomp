@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 
-#FIRST_KNOWN_KERNEL = 5.04
-#KERNEL_DICT = {
-#        'SCMP_KV_UNDEF': -1,
-#        'SCMP_KV_UNKNOWN': -2,
-#        'v5.04': 'SCMP_KV_5_04',
-#        'v5.05': 'SCMP_KV_5_05',
-#        'v5.06': 'SCMP_KV_5_06',
-#        'v5.07': 'SCMP_KV_5_07',
-#        'v5.08': 'SCMP_KV_5_08',
-#        'v5.09': 'SCMP_KV_5_09',
-#        'v5.10': 'SCMP_KV_5_10',
-#        'v5.11': 'SCMP_KV_5_11',
-#        'v5.12': 'SCMP_KV_5_12',
-#        'v5.13': 'SCMP_KV_5_13',
-#        'v5.14': 'SCMP_KV_5_14',
-#        'v5.15': 'SCMP_KV_5_15',
-#        'v5.16': 'SCMP_KV_5_16',
-#}
+C_HEADER_FILE = 'ranges.h'
+
+C_HEADER_START = '''#ifndef _SECCOMP_RANGES_H
+#define _SECCOMP_RANGES_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct range {
+    uint32_t start;
+    uint32_t end;
+};
+
+'''
+
+C_HEADER_END = '''#ifdef __cplusplus
+}
+#endif
+
+#endif
+'''
+
 KERNEL_DICT = {
         'SCMP_KV_UNDEF': -1,
         'SCMP_KV_UNKNOWN': -2,
@@ -186,11 +191,33 @@ def convert_list_to_ranges(arch, sorted_syscall_nums):
 
     return ranges
 
+def print_range(hf, arch_name, key, ranges):
+    hf.write('struct range ranges_{}_{}[] = {{\n'.format(arch_name, key))
+    for range in ranges:
+        hf.write('\t{{{}, {}}},\n'.format(range[0], range[1]))
+    hf.write('};\n\n')
+
+def print_arch_ranges(hf, arch):
+    if not arch.valid:
+        return
+
+    for key in arch.ranges.keys():
+        print_range(hf, arch.name, key, arch.ranges[key])
+
+def print_header_file(settings):
+    with open(C_HEADER_FILE, 'w') as hf:
+        hf.write(C_HEADER_START)
+
+        for arch in settings.arch:
+            print_arch_ranges(hf, arch)
+
+        hf.write(C_HEADER_END)
 
 def build_ranges(arch):
     if not arch.valid:
         return
 
+    #### HACK
     if arch.name != 'x86_64':
         return
 
@@ -205,7 +232,6 @@ def build_ranges(arch):
         if len(valid_syscall_nums) > 0:
             valid_syscall_nums.sort()
             arch.ranges[key] = convert_list_to_ranges(arch, valid_syscall_nums)
-            print(arch.ranges[key])
 
 
 if __name__ == '__main__':
@@ -225,3 +251,5 @@ if __name__ == '__main__':
 
     for arch in settings.arch:
         build_ranges(arch)
+
+    print_header_file(settings)

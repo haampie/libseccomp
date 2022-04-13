@@ -33,6 +33,7 @@
 #include "db.h"
 #include "system.h"
 #include "helper.h"
+#include "ranges.h"
 
 /* state values */
 #define _DB_STA_VALID			0xA1B2C3D4
