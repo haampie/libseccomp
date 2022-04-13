@@ -1071,6 +1071,8 @@ int db_col_reset(struct db_filter_col *col, uint32_t def_action)
 	col->attr.spec_allow = 0;
 	col->attr.optimize = 1;
 	col->attr.api_sysrawrc = 0;
+	col->attr.act_unknown = SCMP_ACT_ERRNO(ENOTSUP);
+	col->attr.kernel_version = _SCMP_KV_MIN;
 
 	/* set the state */
 	col->state = _DB_STA_VALID;
@@ -1320,6 +1322,12 @@ int db_col_attr_get(const struct db_filter_col *col,
 		break;
 	case SCMP_FLTATR_API_SYSRAWRC:
 		*value = col->attr.api_sysrawrc;
+		break;
+	case SCMP_FLTATR_ACT_UNKNOWN:
+		*value = col->attr.act_unknown;
+		break;
+	case SCMP_FLTATR_CTL_KRNL_VRSN:
+		*value = col->attr.kernel_version;
 		break;
 	default:
 		rc = -EINVAL;

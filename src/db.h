@@ -122,6 +122,13 @@ struct db_filter_attr {
 	uint32_t optimize;
 	/* return the raw system return codes */
 	uint32_t api_sysrawrc;
+	/* action to take if the syscall is unknown (too new) */
+	uint32_t act_unknown;
+	/*
+	 * kernel version supported by the userspace program.
+	 * See enum scmp_kernel_version
+	 */
+	uint32_t kernel_version;
 };
 
 struct db_filter {

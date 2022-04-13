@@ -59,6 +59,29 @@ struct scmp_version {
 typedef void *scmp_filter_ctx;
 
 /**
+ * Kernel versions
+ */
+enum scmp_kernel_version {
+	_SCMP_KV_MIN = 0,
+	SCMP_KV_V5_04 = 1,
+	SCMP_KV_V5_05 = 2,
+	SCMP_KV_V5_06 = 3,
+	SCMP_KV_V5_07 = 4,
+	SCMP_KV_V5_08 = 5,
+	SCMP_KV_V5_09 = 6,
+	SCMP_KV_V5_10 = 7,
+	SCMP_KV_V5_11 = 8,
+	SCMP_KV_V5_12 = 9,
+	SCMP_KV_V5_13 = 10,
+	SCMP_KV_V5_14 = 11,
+	SCMP_KV_V5_15 = 12,
+	SCMP_KV_V5_16 = 13,
+	_SCMP_KV_MAX,
+
+	SCMP_KV_FIRST_KNOWN_KERNEL = SCMP_KV_V5_04,
+};
+
+/**
  * Filter attributes
  */
 enum scmp_filter_attr {
@@ -78,6 +101,11 @@ enum scmp_filter_attr {
 					 *     number
 					 */
 	SCMP_FLTATR_API_SYSRAWRC = 9,	/**< return the system return codes */
+	SCMP_FLTATR_ACT_UNKNOWN = 10,	/**< unknown (new) syscall action */
+	SCMP_FLTATR_CTL_KRNL_VRSN = 11, /**< kernel supported by the userspace
+					 *   program invoking libseccomp.  See
+					 *   enum scmp_kernel_version.
+					 */
 	_SCMP_FLTATR_MAX,
 };
 
