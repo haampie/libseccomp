@@ -8,19 +8,19 @@ import sys
 # The 'v' has been intentionally omitted to allow for mathematical comparisons
 FIRST_KNOWN_KERNEL = 5.04
 KERNEL_DICT = {
-        'v5.04': 'KV_5_04',
-        'v5.05': 'KV_5_05',
-        'v5.06': 'KV_5_06',
-        'v5.07': 'KV_5_07',
-        'v5.08': 'KV_5_08',
-        'v5.09': 'KV_5_09',
-        'v5.10': 'KV_5_10',
-        'v5.11': 'KV_5_11',
-        'v5.12': 'KV_5_12',
-        'v5.13': 'KV_5_13',
-        'v5.14': 'KV_5_14',
-        'v5.15': 'KV_5_15',
-        'v5.16': 'KV_5_16',
+        'v5.04': 'SCMP_KV_5_04',
+        'v5.05': 'SCMP_KV_5_05',
+        'v5.06': 'SCMP_KV_5_06',
+        'v5.07': 'SCMP_KV_5_07',
+        'v5.08': 'SCMP_KV_5_08',
+        'v5.09': 'SCMP_KV_5_09',
+        'v5.10': 'SCMP_KV_5_10',
+        'v5.11': 'SCMP_KV_5_11',
+        'v5.12': 'SCMP_KV_5_12',
+        'v5.13': 'SCMP_KV_5_13',
+        'v5.14': 'SCMP_KV_5_14',
+        'v5.15': 'SCMP_KV_5_15',
+        'v5.16': 'SCMP_KV_5_16',
 }
 
 def parse_args():
@@ -124,7 +124,7 @@ class Arch(object):
                       .format(commit_hash))
 
     def validate(self, syscall_name, tag_enum):
-        if tag_enum == 'KV_UNDEF':
+        if tag_enum == 'SCMP_KV_UNDEF':
             # This syscall doesn't exist on this architecture
             return
 
@@ -175,7 +175,7 @@ class Arch_x86_64(Arch):
 
 
 validators = [
-        None,           # column 0
+        None,           # column 0, syscall_name
         None,           # column 1, x86
         Arch_x86_64(),  # column 2, x86_64
         None,           # column 3

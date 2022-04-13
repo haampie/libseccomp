@@ -1,14 +1,42 @@
 #!/usr/bin/env python3
 
+#FIRST_KNOWN_KERNEL = 5.04
+#KERNEL_DICT = {
+#        'SCMP_KV_UNDEF': -1,
+#        'SCMP_KV_UNKNOWN': -2,
+#        'v5.04': 'SCMP_KV_5_04',
+#        'v5.05': 'SCMP_KV_5_05',
+#        'v5.06': 'SCMP_KV_5_06',
+#        'v5.07': 'SCMP_KV_5_07',
+#        'v5.08': 'SCMP_KV_5_08',
+#        'v5.09': 'SCMP_KV_5_09',
+#        'v5.10': 'SCMP_KV_5_10',
+#        'v5.11': 'SCMP_KV_5_11',
+#        'v5.12': 'SCMP_KV_5_12',
+#        'v5.13': 'SCMP_KV_5_13',
+#        'v5.14': 'SCMP_KV_5_14',
+#        'v5.15': 'SCMP_KV_5_15',
+#        'v5.16': 'SCMP_KV_5_16',
+#}
 KERNEL_DICT = {
-        "KV_PRE_5_17": 0,
-        "KV_5_17": 1,
-        "KV_5_18": 2,
-
-        "KV_UNDEF": -1,
-        "KV_UNKNOWN": -2,
+        'SCMP_KV_UNDEF': -1,
+        'SCMP_KV_UNKNOWN': -2,
+        'SCMP_KV_5_04': 1,
+        'SCMP_KV_5_05': 2,
+        'SCMP_KV_5_06': 3,
+        'SCMP_KV_5_07': 4,
+        'SCMP_KV_5_08': 5,
+        'SCMP_KV_5_09': 6,
+        'SCMP_KV_5_10': 7,
+        'SCMP_KV_5_11': 8,
+        'SCMP_KV_5_12': 9,
+        'SCMP_KV_5_13': 10,
+        'SCMP_KV_5_14': 11,
+        'SCMP_KV_5_15': 12,
+        'SCMP_KV_5_16': 13,
+        'SCMP_KV_5_17': 14,
+        'SCMP_KV_5_18': 15,
 }
-
 
 class Arch(object):
     def __init__(self, name):
@@ -127,7 +155,7 @@ def parse_introduced_data(settings, line, line_num):
             kernel_enum = KERNEL_DICT[col]
             settings.arch[idx - 1].introduced_version.append(kernel_enum)
 
-            if kernel_enum == KERNEL_DICT['KV_UNKNOWN']:
+            if kernel_enum == KERNEL_DICT['SCMP_KV_UNKNOWN']:
                 # The date this syscall for this architecture was introduced
                 # into the kernel is unknown.  Invalidate the entire arch
                 settings.arch[idx - 1].valid = False
