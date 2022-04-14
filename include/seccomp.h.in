@@ -76,6 +76,8 @@ enum scmp_kernel_version {
 	SCMP_KV_V5_14 = 11,
 	SCMP_KV_V5_15 = 12,
 	SCMP_KV_V5_16 = 13,
+	SCMP_KV_V5_17 = 14,
+	SCMP_KV_V5_18 = 15,
 	_SCMP_KV_MAX,
 
 	SCMP_KV_FIRST_KNOWN_KERNEL = SCMP_KV_V5_04,

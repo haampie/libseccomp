@@ -33,7 +33,6 @@
 #include "db.h"
 #include "system.h"
 #include "helper.h"
-#include "ranges.h"
 
 /* state values */
 #define _DB_STA_VALID			0xA1B2C3D4
@@ -1439,6 +1438,18 @@ int db_col_attr_set(struct db_filter_col *col,
 		break;
 	case SCMP_FLTATR_API_SYSRAWRC:
 		col->attr.api_sysrawrc = (value ? 1 : 0);
+		break;
+	case SCMP_FLTATR_ACT_UNKNOWN:
+		if (db_col_action_valid(col, value) == 0)
+			col->attr.act_unknown = value;
+		else
+			return -EINVAL;
+		break;
+	case SCMP_FLTATR_CTL_KRNL_VRSN:
+		if (value > _SCMP_FLTATR_MIN && value < _SCMP_FLTATR_MAX)
+			col->attr.kernel_version = value;
+		else
+			return -EINVAL;
 		break;
 	default:
 		rc = -EINVAL;

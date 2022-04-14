@@ -412,11 +412,13 @@ API int seccomp_arch_remove(scmp_filter_ctx ctx, uint32_t arch_token)
 }
 
 /* NOTE - function header comment in include/seccomp.h */
+#include <stdio.h>
 API int seccomp_load(const scmp_filter_ctx ctx)
 {
 	struct db_filter_col *col;
 	bool rawrc;
 
+	fprintf(stderr, "Running seccomp from 20200414\n");
 	if (_ctx_valid(ctx))
 		return _rc_filter(-EINVAL);
 	col = (struct db_filter_col *)ctx;

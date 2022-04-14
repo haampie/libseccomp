@@ -1661,6 +1661,26 @@ out:
 	return rc;
 }
 
+static int _gen_bpf_unknown_ranges(struct bpf_state *state,
+				   enum scmp_kernel_version kernel_version)
+{
+	const struct range *ranges;
+	//int rc;
+
+	ranges = arch_get_range(state->arch->token, kernel_version);
+	if (!ranges)
+		return -EINVAL;
+
+	fprintf(stderr, "sz1 = %ld sz2 = %ld\n",
+		sizeof(ranges), sizeof(struct range));
+	for (int i = 0; i < sizeof(ranges) / sizeof(struct range); i++) {
+		fprintf(stderr, "ranges = [ %d, %d]\n",
+			ranges[i].start, ranges[i].end);
+	}
+
+	return 0;
+}
+
 /**
  * Generate the BPF instruction blocks for a given filter/architecture
  * @param state the BPF state
@@ -1676,7 +1696,7 @@ out:
 static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 				     const struct db_filter *db,
 				     const struct db_filter *db_secondary,
-				     uint32_t optimize)
+				     const struct db_filter_attr *attr)
 {
 	int rc;
 	unsigned int blk_cnt = 0, blks_added = 0, bintree_levels = 0;
@@ -1685,9 +1705,16 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 
 	state->arch = db->arch;
 
+	fprintf(stderr, "%s:%d KV=%d\n", __func__, __LINE__, attr->kernel_version);
+	if (state->attr->kernel_version != _SCMP_KV_MIN) {
+		rc = _gen_bpf_unknown_ranges(state, attr->kernel_version);
+		if (rc < 0)
+			goto arch_failure;
+	}
+
 	/* create the syscall filters and add them to block list group */
-	rc = _gen_bpf_syscalls(state, db, db_secondary, &blks_added, optimize,
-			       &bintree_levels);
+	rc = _gen_bpf_syscalls(state, db, db_secondary, &blks_added,
+			       attr->optimize, &bintree_levels);
 	if (rc < 0)
 		goto arch_failure;
 	blk_cnt += blks_added;
@@ -2016,7 +2043,12 @@ static int _gen_bpf_build_bpf(struct bpf_state *state,
 	state->bad_arch_hsh = b_badarch->hash;
 
 	/* generate the default action */
-	b_default = _gen_bpf_action(state, NULL, state->attr->act_default);
+	if (state->attr->kernel_version != _SCMP_KV_MIN)
+		b_default = _gen_bpf_action(state, NULL,
+					    state->attr->act_unknown);
+	else
+		b_default = _gen_bpf_action(state, NULL,
+					    state->attr->act_default);
 	if (b_default == NULL)
 		return -ENOMEM;
 	rc = _hsh_add(state, &b_default, 0);
@@ -2060,7 +2092,7 @@ static int _gen_bpf_build_bpf(struct bpf_state *state,
 
 		/* create the filter for the architecture(s) */
 		b_new = _gen_bpf_arch(state, col->filters[iter], db_secondary,
-				      col->attr.optimize);
+				      &col->attr);
 		if (b_new == NULL)
 			return -ENOMEM;
 		b_new->prev = b_tail;
