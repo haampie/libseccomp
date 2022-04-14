@@ -1446,7 +1446,7 @@ int db_col_attr_set(struct db_filter_col *col,
 			return -EINVAL;
 		break;
 	case SCMP_FLTATR_CTL_KRNL_VRSN:
-		if (value > _SCMP_FLTATR_MIN && value < _SCMP_FLTATR_MAX)
+		if (value > _SCMP_KV_MIN && value < _SCMP_KV_MAX)
 			col->attr.kernel_version = value;
 		else
 			return -EINVAL;

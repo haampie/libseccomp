@@ -218,18 +218,55 @@ def print_arch_ranges(hf, arch):
     for key in arch.ranges.keys():
         print_range(hf, arch.name, key, arch.ranges[key])
 
-### todo - possible idea to make the C code simpler
-def print_table(hf, settings):
-    hf.write('struct range range_table[{}][{}] = {{\n'.format(
-             len(settings.arch), len(KERNEL_DICT.keys())))
+def build_tables(settings):
+    ranges_tbl = ''
+    sizes_tbl = ''
+
+    ranges_tbl += 'struct range *range_table[{}][{}] = {{\n'.format(
+                      len(settings.arch), len(KERNEL_DICT.keys()))
+    sizes_tbl += 'uint32_t sizes_table[{}][{}] = {{\n'.format(
+                     len(settings.arch), len(KERNEL_DICT.keys()))
 
     for arch in settings.arch:
-        hf.write('{')
-        for key in arch.ranges.keys():
-            hf.write('ranges_{}_{},'.format(arch.name, key))
-        hf.write('},')
+        ranges_tbl += '\t{'
+        sizes_tbl += '\t{'
 
-    hf.write('};\n')
+        for key in KERNEL_DICT.keys():
+            if key == 'SCMP_KV_UNDEF' or key == 'SCMP_KV_UNKNOWN':
+                continue
+
+            try:
+                # do an arbitrary read to see if this range was populated.
+                tmp = arch.ranges[key]
+                ranges_tbl += 'ranges_{}_{},'.format(arch.name, key)
+                sizes_tbl += '{},'.format(len(arch.ranges[key]))
+            except KeyError:
+                ranges_tbl += 'NULL,'
+                sizes_tbl += '0,'
+
+        # strip off the trailing ','
+        ranges_tbl = ranges_tbl[:-1]
+        sizes_tbl = sizes_tbl[:-1]
+
+        ranges_tbl += '},\n'
+        sizes_tbl += '},\n'
+
+    # strip off the trailing ',\n'
+    ranges_tbl = ranges_tbl[:-2]
+    sizes_tbl = sizes_tbl[:-2]
+
+    ranges_tbl += '\n};\n'
+    sizes_tbl += '\n};\n'
+
+    return ranges_tbl, sizes_tbl
+
+def print_tables(hf, settings):
+    ranges_tbl, sizes_tbl = build_tables(settings)
+
+    hf.write(ranges_tbl)
+    hf.write('\n')
+    hf.write(sizes_tbl)
+    hf.write('\n')
 
 def print_header_file(settings):
     with open(C_HEADER_FILE, 'w') as hf:
@@ -238,7 +275,7 @@ def print_header_file(settings):
         for arch in settings.arch:
             print_arch_ranges(hf, arch)
 
-#       print_table(hf, settings)
+        print_tables(hf, settings)
 
         hf.write(C_HEADER_END)
 

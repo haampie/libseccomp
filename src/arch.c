@@ -49,6 +49,7 @@
 #include "db.h"
 #include "system.h"
 #include "ranges.h"
+#include "syscalls.h"
 
 #define default_arg_offset(x)		(offsetof(struct seccomp_data, args[x]))
 
@@ -465,12 +466,73 @@ rule_add_return:
 	return rc;
 }
 
+static uint32_t _token_to_offset(uint32_t token)
+{
+	switch (token) {
+	case SCMP_ARCH_X86:
+		return 0;
+	case SCMP_ARCH_X86_64:
+		return 1;
+	case SCMP_ARCH_X32:
+		return 2;
+	case SCMP_ARCH_ARM:
+		return 3;
+	case SCMP_ARCH_AARCH64:
+		return 4;
+	case SCMP_ARCH_MIPS:
+		return 5;
+	case SCMP_ARCH_MIPSEL:
+		return 6;
+	case SCMP_ARCH_MIPS64:
+		return 7;
+	case SCMP_ARCH_MIPSEL64:
+		return 8;
+	case SCMP_ARCH_MIPS64N32:
+		return 9;
+	case SCMP_ARCH_MIPSEL64N32:
+		return 10;
+	case SCMP_ARCH_PARISC:
+		return 11;
+	case SCMP_ARCH_PARISC64:
+		return 12;
+	case SCMP_ARCH_PPC:
+		return 13;
+	case SCMP_ARCH_PPC64:
+		return 14;
+	case SCMP_ARCH_PPC64LE:
+		return 15;
+	case SCMP_ARCH_S390:
+		return 16;
+	case SCMP_ARCH_S390X:
+		return 17;
+	case SCMP_ARCH_RISCV64:
+		return 18;
+	case SCMP_ARCH_SHEB:
+		return 19;
+	case SCMP_ARCH_SH:
+		return 20;
+	}
+
+	return -1;
+}
+
 #include <stdio.h>
 int const arch_get_range(uint32_t token,
 			 enum scmp_kernel_version kv,
-			 const struct range **range_table,
+			 const struct range **table,
 			 uint32_t * const table_sz)
 {
+	uint32_t arch_offset = _token_to_offset(token);
+	int ret = 0;
+
+	arch_offset = _token_to_offset(token);
+	// todo - error handling on bad arch name???
+
+	*table = range_table[arch_offset][kv - 1];
+	*table_sz = sizes_table[arch_offset][kv - 1];
+	return ret;
+
+#if 0
 	switch (token) {
 	case SCMP_ARCH_X86:
 		return -EINVAL;
@@ -562,4 +624,5 @@ int const arch_get_range(uint32_t token,
 	default:
 		return -EINVAL;
 	}
+#endif
 }
