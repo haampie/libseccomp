@@ -466,15 +466,27 @@ rule_add_return:
 }
 
 #include <stdio.h>
-const struct range * const arch_get_range(uint32_t token,
-					  enum scmp_kernel_version kv)
+int const arch_get_range(uint32_t token,
+			 enum scmp_kernel_version kv,
+			 const struct range **range_table,
+			 uint32_t * const table_sz)
 {
 	switch (token) {
 	case SCMP_ARCH_X86:
-		return NULL;
+		return -EINVAL;
 	case SCMP_ARCH_X86_64:
 		switch (kv) {
 		case SCMP_KV_V5_04:
+			*range_table = ranges_x86_64_SCMP_KV_5_04;
+			*table_sz = sizeof(ranges_x86_64_SCMP_KV_5_04) /
+				    sizeof(struct range);
+			return 0;
+		case SCMP_KV_V5_08:
+			*range_table = ranges_x86_64_SCMP_KV_5_08;
+			*table_sz = sizeof(ranges_x86_64_SCMP_KV_5_08) /
+				    sizeof(struct range);
+			return 0;
+#if 0
 			return ranges_x86_64_SCMP_KV_5_04;
 		case SCMP_KV_V5_05:
 			return ranges_x86_64_SCMP_KV_5_05;
@@ -505,9 +517,11 @@ const struct range * const arch_get_range(uint32_t token,
 			return ranges_x86_64_SCMP_KV_5_17;
 		case SCMP_KV_V5_18:
 			return ranges_x86_64_SCMP_KV_5_18;
+#endif
 		default:
-			return NULL;
+			return -EINVAL;
 		}
+#if 0
 	case SCMP_ARCH_ARM:
 		return NULL;
 	case SCMP_ARCH_AARCH64:
@@ -544,7 +558,8 @@ const struct range * const arch_get_range(uint32_t token,
 		return NULL;
 	case SCMP_ARCH_SH:
 		return NULL;
+#endif
 	default:
-		return NULL;
+		return -EINVAL;
 	}
 }

@@ -1665,15 +1665,18 @@ static int _gen_bpf_unknown_ranges(struct bpf_state *state,
 				   enum scmp_kernel_version kernel_version)
 {
 	const struct range *ranges;
-	//int rc;
+	uint32_t ranges_sz;
+	int rc;
 
-	ranges = arch_get_range(state->arch->token, kernel_version);
-	if (!ranges)
+	rc = arch_get_range(state->arch->token, kernel_version, &ranges,
+			    &ranges_sz);
+	if (rc < 0) {
+		fprintf(stderr, "%s:%d\n", __func__, __LINE__);
 		return -EINVAL;
+	}
 
-	fprintf(stderr, "sz1 = %ld sz2 = %ld\n",
-		sizeof(ranges), sizeof(struct range));
-	for (int i = 0; i < sizeof(ranges) / sizeof(struct range); i++) {
+	fprintf(stderr, "size = %d\n", ranges_sz);
+	for (int i = 0; i < ranges_sz; i++) {
 		fprintf(stderr, "ranges = [ %d, %d]\n",
 			ranges[i].start, ranges[i].end);
 	}
@@ -1707,6 +1710,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 
 	fprintf(stderr, "%s:%d KV=%d\n", __func__, __LINE__, attr->kernel_version);
 	if (state->attr->kernel_version != _SCMP_KV_MIN) {
+		fprintf(stderr, "%s:%d\n", __func__, __LINE__);
 		rc = _gen_bpf_unknown_ranges(state, attr->kernel_version);
 		if (rc < 0)
 			goto arch_failure;

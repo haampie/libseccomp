@@ -122,8 +122,10 @@ int arch_filter_rule_add(struct db_filter *db,
 struct range {
 	uint32_t start;
 	uint32_t end;
-}; 
-const struct range * const arch_get_range(uint32_t arch_token,
-					  enum scmp_kernel_version kv);
+};
+int const arch_get_range(uint32_t token,
+			 enum scmp_kernel_version kv,
+			 const struct range **range_table,
+			 uint32_t * const table_sz);
 
 #endif

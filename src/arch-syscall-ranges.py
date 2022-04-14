@@ -8,12 +8,6 @@ C_HEADER_START = '''#ifndef _SECCOMP_RANGES_H
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct range {
-    uint32_t start;
-    uint32_t end;
-};
-
 '''
 
 C_HEADER_END = '''#ifdef __cplusplus
@@ -191,28 +185,6 @@ def convert_list_to_ranges(arch, sorted_syscall_nums):
 
     return ranges
 
-def print_range(hf, arch_name, key, ranges):
-    hf.write('struct range ranges_{}_{}[] = {{\n'.format(arch_name, key))
-    for range in ranges:
-        hf.write('\t{{{}, {}}},\n'.format(range[0], range[1]))
-    hf.write('};\n\n')
-
-def print_arch_ranges(hf, arch):
-    if not arch.valid:
-        return
-
-    for key in arch.ranges.keys():
-        print_range(hf, arch.name, key, arch.ranges[key])
-
-def print_header_file(settings):
-    with open(C_HEADER_FILE, 'w') as hf:
-        hf.write(C_HEADER_START)
-
-        for arch in settings.arch:
-            print_arch_ranges(hf, arch)
-
-        hf.write(C_HEADER_END)
-
 def build_ranges(arch):
     if not arch.valid:
         return
@@ -233,6 +205,42 @@ def build_ranges(arch):
             valid_syscall_nums.sort()
             arch.ranges[key] = convert_list_to_ranges(arch, valid_syscall_nums)
 
+def print_range(hf, arch_name, key, ranges):
+    hf.write('struct range ranges_{}_{}[] = {{\n'.format(arch_name, key))
+    for rng in ranges:
+        hf.write('\t{{{}, {}}},\n'.format(rng[0], rng[1]))
+    hf.write('};\n\n')
+
+def print_arch_ranges(hf, arch):
+    if not arch.valid:
+        return
+
+    for key in arch.ranges.keys():
+        print_range(hf, arch.name, key, arch.ranges[key])
+
+### todo - possible idea to make the C code simpler
+def print_table(hf, settings):
+    hf.write('struct range range_table[{}][{}] = {{\n'.format(
+             len(settings.arch), len(KERNEL_DICT.keys())))
+
+    for arch in settings.arch:
+        hf.write('{')
+        for key in arch.ranges.keys():
+            hf.write('ranges_{}_{},'.format(arch.name, key))
+        hf.write('},')
+
+    hf.write('};\n')
+
+def print_header_file(settings):
+    with open(C_HEADER_FILE, 'w') as hf:
+        hf.write(C_HEADER_START)
+
+        for arch in settings.arch:
+            print_arch_ranges(hf, arch)
+
+#       print_table(hf, settings)
+
+        hf.write(C_HEADER_END)
 
 if __name__ == '__main__':
     with open('syscalls.csv', 'r') as f:
