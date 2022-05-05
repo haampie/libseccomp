@@ -799,6 +799,17 @@ int seccomp_rule_add_exact_array(scmp_filter_ctx ctx,
 				 const struct scmp_arg_cmp *arg_array);
 
 /**
+ * Add the newest supported kernel version to the filter
+ * @param ctx the filter context
+ * @param kver the newest supported kernel version
+ *
+ * This function instructs libseccomp that the calling application only
+ * supports kernel version kver or older.  Syscalls from newer kernel
+ * versions will be blocked by the filter and return ENOSYS
+ */
+int seccomp_rule_add_kver(scmp_filter_ctx ctx, enum scmp_kver kver);
+
+/**
  * Allocate a pair of notification request/response structures
  * @param req the request location
  * @param resp the response location

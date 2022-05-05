@@ -641,6 +641,19 @@ API int seccomp_rule_add_exact(scmp_filter_ctx ctx,
 	return _rc_filter(rc);
 }
 
+API int seccomp_rule_add_kver(scmp_filter_ctx ctx, enum scmp_kver kver)
+{
+	struct db_filter_col *col = (struct db_filter_col *)ctx;
+
+	if (db_col_valid(col))
+		return _rc_filter(-EINVAL);
+
+	if (kver <= SCMP_KV_FIRST_KNOWN_KERNEL || kver >= __SCMP_KV_MAX)
+		return _rc_filter(-EINVAL);
+
+	return _rc_filter(db_col_rule_add_kver(col, kver));
+}
+
 /* NOTE - function header comment in include/seccomp.h */
 API int seccomp_notify_alloc(struct seccomp_notif **req,
 			     struct seccomp_notif_resp **resp)

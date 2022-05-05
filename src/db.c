@@ -1079,6 +1079,8 @@ int db_col_reset(struct db_filter_col *col, uint32_t def_action)
 	else
 		col->notify_used = false;
 
+	col->kver = SCMP_KV_UNDEF;
+
 	/* reset the initial db */
 	db = _db_init(arch_def_native);
 	if (db == NULL)
@@ -2181,6 +2183,21 @@ add_failure:
 	_db_tree_put(&s_new->chains);
 	free(s_new);
 	return rc;
+}
+
+/**
+ * Add the newest supported kernel version to the filter
+ * @param col the filter collection
+ * @param kver the newest supported kernel version
+ *
+ * This function instructs libseccomp that the calling application only
+ * supports kernel version kver or older.  Syscalls from newer kernel
+ * versions will not succeed.
+ */
+int db_col_rule_add_kver(struct db_filter_col *col, enum scmp_kver kver)
+{
+	col->kver = kver;
+	return 0;
 }
 
 /**

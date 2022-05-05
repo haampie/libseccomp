@@ -162,6 +162,9 @@ struct db_filter_col {
 
 	/* userspace notification */
 	bool notify_used;
+
+	/* maximum supported kernel version */
+	enum scmp_kver kver;
 };
 
 /**
@@ -213,5 +216,6 @@ void db_col_transaction_abort(struct db_filter_col *col);
 void db_col_transaction_commit(struct db_filter_col *col);
 
 int db_rule_add(struct db_filter *db, const struct db_api_rule_list *rule);
+int db_col_rule_add_kver(struct db_filter_col *col, enum scmp_kver kver);
 
 #endif
