@@ -145,6 +145,79 @@ struct bpf_blk {
 #define _BLK_MSZE(x) \
 	((x)->blk_cnt * sizeof(*((x)->blks)))
 
+static void print_instr(struct bpf_instr *instr)
+{
+
+	fprintf(stdout, "\t\t\t\top = 0x%x\n", instr->op);
+	fprintf(stdout, "\t\t\t\tjt type = %d hash = 0x%lx\n", instr->jt.type,
+		instr->jt.tgt.hash);
+	fprintf(stdout, "\t\t\t\tjf type = %d hash = 0x%lx\n", instr->jf.type,
+		instr->jf.tgt.hash);
+	fprintf(stdout, "\t\t\t\tk type = %d hash = 0x%lx\n", instr->k.type,
+		instr->k.tgt.hash);
+}
+
+static int print_blk(struct bpf_blk *b_cur)
+{
+        int blk_cnt = 0; 
+
+        fprintf(stdout, "\t\t--------bpf_blk %p--------\n", b_cur);
+        fprintf(stdout, "\t\t\tblk_cnt = %d blk_alloc = %d hash = 0x%lx\n",
+                b_cur->blk_cnt, b_cur->blk_alloc,
+                b_cur->hash);
+
+        for (blk_cnt = 0; blk_cnt < b_cur->blk_cnt; blk_cnt++) {
+                fprintf(stdout, "\t\t\t--------instr %d--------\n",
+                        blk_cnt);
+		print_instr(&b_cur->blks[blk_cnt]);
+        }
+
+        fprintf(stdout, "\t\t\tlvl_prv = %p lvl_nxt = %p\n",
+                b_cur->lvl_prv, b_cur->lvl_nxt);
+        fprintf(stdout, "\t\t\tprev = %p next = %p\n",
+                b_cur->prev, b_cur->next);
+
+	return blk_cnt;
+}
+
+static void print_blks(struct bpf_blk *b_head)
+{
+        struct bpf_blk *b_cur = b_head;
+	int blks_printed = 0;
+
+        fprintf(stdout, "--------b_head = %p--------\n", b_head);
+     
+        fprintf(stdout, "\t--------next chain--------\n");
+        b_cur = b_head;
+        while (b_cur != NULL) {
+                blks_printed += print_blk(b_cur);
+                b_cur = b_cur->next;
+        }
+
+        fprintf(stdout, "\t--------prev chain--------\n");
+        b_cur = b_head;
+        while (b_cur != NULL) {
+                blks_printed += print_blk(b_cur);
+                b_cur = b_cur->prev;
+        }
+
+        fprintf(stdout, "\t--------lvl prv chain--------\n");
+        b_cur = b_head;
+        while (b_cur != NULL) {
+                blks_printed += print_blk(b_cur);
+                b_cur = b_cur->lvl_prv;
+        }
+
+        fprintf(stdout, "\t--------lvl nxt chain--------\n");
+        b_cur = b_head;
+        while (b_cur != NULL) {
+                blks_printed += print_blk(b_cur);
+                b_cur = b_cur->lvl_nxt;
+        }
+
+        fprintf(stdout, "\nProcessed2 %d blocks\n", blks_printed);
+}
+
 struct bpf_hash_bkt {
 	struct bpf_blk *blk;
 	struct bpf_hash_bkt *next;
@@ -1551,6 +1624,135 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
 	return blk_s;
 }
 
+static int _gen_bpf_unknown_ranges(struct bpf_state *state,
+				   enum scmp_kver kver,
+				   unsigned int *blks_added)
+{
+#if 0
+	const struct range *ranges;
+	struct bpf_instr instr;
+	struct bpf_blk *blk = NULL, *blk_a;
+	uint32_t ranges_sz;
+	uint64_t range_hash;
+	int rc;
+
+	rc = arch_get_range(state->arch->token, kernel_version, &ranges,
+			    &ranges_sz);
+	if (rc < 0) {
+		fprintf(stderr, "%s:%d\n", __func__, __LINE__);
+		return -EINVAL;
+	}
+
+	blk_a = _gen_bpf_action_hsh(state, state->attr->act_default);
+	if (blk_a == NULL) {
+		fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
+		return -EINVAL;
+	}
+	(*blks_added)++;
+
+	range_hash = blk_a->hash;
+	fprintf(stderr, "myhash = 0x%lx\n", range_hash);
+	fprintf(stderr, "jge op = 0x%x\n", _BPF_OP(state->arch, BPF_JMP + BPF_JGE));
+	fprintf(stderr, "jge op = 0x%x\n", _BPF_OP(state->arch, BPF_JMP + BPF_JGE));
+
+	fprintf(stderr, "size = %d\n", ranges_sz);
+	for (int i = 0; i < ranges_sz; i++) {
+		fprintf(stderr, "ranges = [ %d, %d]\n",
+			ranges[i].start, ranges[i].end);
+
+		_BPF_INSTR(instr,
+			   _BPF_OP(state->arch, BPF_JMP + BPF_JGT),
+			   _BPF_JMP_NO,
+			   i == 0 ? _BPF_JMP_HSH(state->def_hsh) :
+			   	    _BPF_JMP_NO,
+			   _BPF_K(state->arch, ranges[i].end));
+		//(*blks_added)++;
+
+		blk = _blk_append(state, blk, &instr);
+		if (blk == NULL) {
+			fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
+			return -EINVAL;
+		}
+
+		_BPF_INSTR(instr,
+			   _BPF_OP(state->arch, BPF_JMP + BPF_JGT),
+			   _BPF_JMP_HSH(range_hash),
+			   i == 0 ? _BPF_JMP_HSH(state->def_hsh) :
+			   	    //_BPF_JMP_NO,
+				    _BPF_JMP_HSH(state->def_hsh),
+			   _BPF_K(state->arch, ranges[i].start));
+		//(*blks_added)++;
+
+		blk = _blk_append(state, blk, &instr);
+		if (blk == NULL) {
+			fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
+			return -EINVAL;
+		}
+	}
+
+	rc = _hsh_add(state, &blk, 1);
+	if (rc < 0)
+		return -EINVAL;
+
+	(*blks_added)++;
+
+	state->first_range_hsh = blk->hash;
+
+	state->b_head = blk_a;
+	//state->b_tail = blk;
+	blk_a->next = blk;
+	blk_a->prev = NULL;
+	blk->prev = blk_a;
+	blk->next = NULL;
+
+	return 0;
+#else
+	struct bpf_blk *blk_jmp = NULL, *blk_ret = NULL;
+	struct bpf_instr instr;
+	int rc;
+
+	_BPF_INSTR(instr,
+		   _BPF_OP(state->arch, BPF_RET),
+		   _BPF_JMP_HSH(state->def_hsh),
+		   _BPF_JMP_HSH(state->def_hsh),
+		   _BPF_K(state->arch, SCMP_ACT_ERRNO(99)));
+	blk_ret = _blk_append(state, NULL, &instr);
+	if (blk_ret == NULL) {
+		fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
+		return -EINVAL;
+	}
+	(*blks_added)++;
+
+	rc = _hsh_add(state, &blk_ret, 1);
+	if (rc < 0) {
+		fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
+		return rc;
+	}
+
+	_BPF_INSTR(instr, _BPF_OP(state->arch, BPF_JMP + BPF_JEQ),
+		   _BPF_JMP_HSH(state->bad_arch_hsh),
+		   _BPF_JMP_HSH(state->def_hsh),
+		   _BPF_K(state->arch, 0xabcd));
+	blk_jmp = _blk_append(state, NULL, &instr);
+	if (blk_jmp == NULL) {
+		fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
+		return -EINVAL;
+	}
+	(*blks_added)++;
+
+	blk_jmp->next = blk_ret;
+	blk_ret->prev = blk_jmp;
+	state->b_head = blk_jmp;
+	state->b_tail = blk_ret;
+
+	fprintf(stdout, "b_head = %p\n", state->b_head);
+	print_blks(blk_jmp);
+	fprintf(stdout, "blk_jmp = %p\n", blk_jmp);
+
+	return 0;
+#endif
+}
+
 /**
  * Loop through the syscalls in the db_filter and generate their bpf
  * @param state the BPF state
@@ -1562,7 +1764,7 @@ static int _gen_bpf_syscalls(struct bpf_state *state,
 			     const struct db_filter *db,
 			     const struct db_filter *db_secondary,
 			     unsigned int *blks_added, uint32_t optimize,
-			     unsigned int *bintree_levels)
+			     unsigned int *bintree_levels, enum scmp_kver kver)
 {
 	struct db_sys_list *s_head = NULL, *s_tail = NULL, *s_iter;
 	unsigned int syscall_cnt, empty_cnt = 0;
@@ -1577,6 +1779,19 @@ static int _gen_bpf_syscalls(struct bpf_state *state,
 	state->b_new = NULL;
 
 	*blks_added = 0;
+
+#if 1
+	//fprintf(stderr, "%s:%d KV=%d\n", __func__, __LINE__, kver);
+	if (kver != SCMP_KV_UNDEF) {
+		//fprintf(stderr, "%s:%d\n", __func__, __LINE__);
+		rc = _gen_bpf_unknown_ranges(state, kver, blks_added);
+		if (rc < 0) {
+			fprintf(stderr, "%s:%d\n", __func__, __LINE__);
+			goto out;
+		}
+		//fprintf(stderr, "%s:%d blks_added = %d\n", __func__, __LINE__, *blks_added);
+	}
+#endif
 
 	/* sort the syscall list */
 	_sys_sort(db->syscalls, &s_head, &s_tail, optimize);
@@ -1679,7 +1894,7 @@ out:
 static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 				     const struct db_filter *db,
 				     const struct db_filter *db_secondary,
-				     uint32_t optimize)
+				     uint32_t optimize, enum scmp_kver kver)
 {
 	int rc;
 	unsigned int blk_cnt = 0, blks_added = 0, bintree_levels = 0;
@@ -1690,7 +1905,7 @@ static struct bpf_blk *_gen_bpf_arch(struct bpf_state *state,
 
 	/* create the syscall filters and add them to block list group */
 	rc = _gen_bpf_syscalls(state, db, db_secondary, &blks_added, optimize,
-			       &bintree_levels);
+			       &bintree_levels, kver);
 	if (rc < 0)
 		goto arch_failure;
 	blk_cnt += blks_added;
@@ -2063,7 +2278,7 @@ static int _gen_bpf_build_bpf(struct bpf_state *state,
 
 		/* create the filter for the architecture(s) */
 		b_new = _gen_bpf_arch(state, col->filters[iter], db_secondary,
-				      col->attr.optimize);
+				      col->attr.optimize, col->kver);
 		if (b_new == NULL)
 			return -ENOMEM;
 		b_new->prev = b_tail;
@@ -2090,15 +2305,19 @@ static int _gen_bpf_build_bpf(struct bpf_state *state,
 			if (i_iter->jt.type == TGT_NXT) {
 				b_jmp = _gen_bpf_find_nxt(b_iter,
 							  i_iter->jt.tgt.nxt);
-				if (b_jmp == NULL)
+				if (b_jmp == NULL) {
+					fprintf(stderr, "true failed\n");
 					return -EFAULT;
+				}
 				i_iter->jt = _BPF_JMP_HSH(b_jmp->hash);
 			}
 			if (i_iter->jf.type == TGT_NXT) {
 				b_jmp = _gen_bpf_find_nxt(b_iter,
 							  i_iter->jf.tgt.nxt);
-				if (b_jmp == NULL)
+				if (b_jmp == NULL) {
+					fprintf(stderr, "false failed\n");
 					return -EFAULT;
+				}
 				i_iter->jf = _BPF_JMP_HSH(b_jmp->hash);
 			}
 			/* we shouldn't need to worry about a TGT_NXT in k */
@@ -2224,6 +2443,8 @@ static int _gen_bpf_build_bpf(struct bpf_state *state,
 		if (res_cnt == 0)
 			b_iter = b_iter->prev;
 	} while (b_iter != NULL);
+
+	print_blks(b_head);
 
 	/* build the bpf program */
 	do {
