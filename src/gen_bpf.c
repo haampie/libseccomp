@@ -237,6 +237,8 @@ struct bpf_state {
 	uint64_t bad_arch_hsh;
 	/* default action */
 	uint64_t def_hsh;
+	/* hash of the action to handle too-new syscalls */
+	uint64_t kver_action_hash;
 
 	/* bpf program */
 	struct bpf_program *bpf;
@@ -1624,87 +1626,117 @@ static struct bpf_blk *_gen_bpf_syscall(struct bpf_state *state,
 	return blk_s;
 }
 
+#define BPF_JLE 0xb0
 static int _gen_bpf_unknown_ranges(struct bpf_state *state,
 				   enum scmp_kver kver,
 				   unsigned int *blks_added)
 {
-#if 0
+#if 1
 	const struct range *ranges;
 	struct bpf_instr instr;
 	struct bpf_blk *blk = NULL, *blk_a;
 	uint32_t ranges_sz;
-	uint64_t range_hash;
 	int rc;
 
-	rc = arch_get_range(state->arch->token, kernel_version, &ranges,
-			    &ranges_sz);
+	rc = arch_get_range(state->arch->token, kver, &ranges, &ranges_sz);
 	if (rc < 0) {
 		fprintf(stderr, "%s:%d\n", __func__, __LINE__);
 		return -EINVAL;
 	}
 
-	blk_a = _gen_bpf_action_hsh(state, state->attr->act_default);
+	// todo - define the default action somewhere
+	blk_a = _gen_bpf_action(state, NULL, SCMP_ACT_ERRNO(ENOSYS));
 	if (blk_a == NULL) {
 		fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
 		return -EINVAL;
 	}
 	(*blks_added)++;
 
-	range_hash = blk_a->hash;
-	fprintf(stderr, "myhash = 0x%lx\n", range_hash);
-	fprintf(stderr, "jge op = 0x%x\n", _BPF_OP(state->arch, BPF_JMP + BPF_JGE));
-	fprintf(stderr, "jge op = 0x%x\n", _BPF_OP(state->arch, BPF_JMP + BPF_JGE));
+	rc = _hsh_add(state, &blk_a, 1);
+	if (rc < 0) {
+		fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
+		return rc;
+	}
 
+	fprintf(stderr, "myhash = 0x%lx\n", blk_a->hash);
 	fprintf(stderr, "size = %d\n", ranges_sz);
+
+	state->b_head = blk_a;
+	state->b_tail = blk_a;
+
+#if 1
 	for (int i = 0; i < ranges_sz; i++) {
 		fprintf(stderr, "ranges = [ %d, %d]\n",
 			ranges[i].start, ranges[i].end);
 
+		// syscall <= range end
 		_BPF_INSTR(instr,
-			   _BPF_OP(state->arch, BPF_JMP + BPF_JGT),
-			   _BPF_JMP_NO,
+			   _BPF_OP(state->arch, BPF_JMP + BPF_JLE),
+			   _BPF_JMP_HSH(blk_a->hash),
 			   i == 0 ? _BPF_JMP_HSH(state->def_hsh) :
-			   	    _BPF_JMP_NO,
+				   _BPF_JMP_IMM(0),
 			   _BPF_K(state->arch, ranges[i].end));
-		//(*blks_added)++;
 
-		blk = _blk_append(state, blk, &instr);
+		fprintf(stdout, "%s:%d\n", __func__, __LINE__);
+		blk = _blk_append(state, NULL, &instr);
 		if (blk == NULL) {
 			fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
 			return -EINVAL;
 		}
+		(*blks_added)++;
+		fprintf(stdout, "%s:%d\n", __func__, __LINE__);
 
+		blk->prev = NULL;
+		blk->next = state->b_head;
+		if (state->b_tail != NULL) {
+			state->b_head->prev = blk;
+			state->b_head = blk;
+		} else {
+			state->b_head = blk;
+			state->b_tail = state->b_head;
+		}
+
+		if (state->b_tail->next != NULL)
+			state->b_tail = state->b_tail->next;
+
+		fprintf(stdout, "%s:%d\n", __func__, __LINE__);
+
+		// syscall >= range start
 		_BPF_INSTR(instr,
-			   _BPF_OP(state->arch, BPF_JMP + BPF_JGT),
-			   _BPF_JMP_HSH(range_hash),
+			   _BPF_OP(state->arch, BPF_JMP + BPF_JGE),
+			   _BPF_JMP_IMM(0),
 			   i == 0 ? _BPF_JMP_HSH(state->def_hsh) :
-			   	    //_BPF_JMP_NO,
-				    _BPF_JMP_HSH(state->def_hsh),
+				   _BPF_JMP_IMM(1),
 			   _BPF_K(state->arch, ranges[i].start));
-		//(*blks_added)++;
 
-		blk = _blk_append(state, blk, &instr);
+		blk = _blk_append(state, NULL, &instr);
+		fprintf(stdout, "%s:%d\n", __func__, __LINE__);
 		if (blk == NULL) {
 			fprintf(stderr, "%s:%d failed\n", __func__, __LINE__);
 			return -EINVAL;
 		}
+		(*blks_added)++;
+		fprintf(stdout, "%s:%d\n", __func__, __LINE__);
+
+		blk->prev = NULL;
+		blk->next = state->b_head;
+		if (state->b_tail != NULL) {
+			state->b_head->prev = blk;
+			state->b_head = blk;
+		} else {
+			state->b_head = blk;
+			state->b_tail = state->b_head;
+		}
+
+		if (state->b_tail->next != NULL)
+			state->b_tail = state->b_tail->next;
+
+		fprintf(stdout, "%s:%d\n", __func__, __LINE__);
 	}
+#endif
 
-	rc = _hsh_add(state, &blk, 1);
-	if (rc < 0)
-		return -EINVAL;
-
-	(*blks_added)++;
-
-	state->first_range_hsh = blk->hash;
-
-	state->b_head = blk_a;
-	//state->b_tail = blk;
-	blk_a->next = blk;
-	blk_a->prev = NULL;
-	blk->prev = blk_a;
-	blk->next = NULL;
-
+	fprintf(stdout, "%s:%d\n", __func__, __LINE__);
+	print_blks(blk);
 	return 0;
 #else
 	struct bpf_blk *blk_jmp = NULL, *blk_ret = NULL;
@@ -1713,8 +1745,9 @@ static int _gen_bpf_unknown_ranges(struct bpf_state *state,
 
 	_BPF_INSTR(instr,
 		   _BPF_OP(state->arch, BPF_RET),
-		   _BPF_JMP_HSH(state->def_hsh),
-		   _BPF_JMP_HSH(state->def_hsh),
+		   //_BPF_JMP_HSH(state->def_hsh),
+		   //_BPF_JMP_HSH(state->def_hsh),
+		   _BPF_JMP_NO, _BPF_JMP_NO,
 		   _BPF_K(state->arch, SCMP_ACT_ERRNO(99)));
 	blk_ret = _blk_append(state, NULL, &instr);
 	if (blk_ret == NULL) {

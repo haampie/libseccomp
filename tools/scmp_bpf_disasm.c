@@ -152,6 +152,9 @@ static const char *bpf_decode_op(const bpf_instr_raw *bpf)
 	case BPF_JMP+BPF_JSET+BPF_K:
 	case BPF_JMP+BPF_JSET+BPF_X:
 		return "jset";
+	case BPF_JMP+BPF_JLE+BPF_K:
+	case BPF_JMP+BPF_JLE+BPF_X:
+		return "jle";
 	case BPF_RET+BPF_K:
 	case BPF_RET+BPF_X:
 	case BPF_RET+BPF_A:

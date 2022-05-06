@@ -48,6 +48,8 @@
 #include "arch-sh.h"
 #include "db.h"
 #include "system.h"
+#include "ranges.h"
+#include "syscalls.h"
 
 #define default_arg_offset(x)		(offsetof(struct seccomp_data, args[x]))
 
@@ -462,4 +464,167 @@ rule_add_return:
 	if (rule_dup != NULL)
 		free(rule_dup);
 	return rc;
+}
+
+static uint32_t _token_to_offset(uint32_t token)
+{
+	switch (token) {
+	case SCMP_ARCH_X86:
+		return 0;
+	case SCMP_ARCH_X86_64:
+		return 1;
+	case SCMP_ARCH_X32:
+		return 2;
+	case SCMP_ARCH_ARM:
+		return 3;
+	case SCMP_ARCH_AARCH64:
+		return 4;
+	case SCMP_ARCH_MIPS:
+		return 5;
+	case SCMP_ARCH_MIPSEL:
+		return 6;
+	case SCMP_ARCH_MIPS64:
+		return 7;
+	case SCMP_ARCH_MIPSEL64:
+		return 8;
+	case SCMP_ARCH_MIPS64N32:
+		return 9;
+	case SCMP_ARCH_MIPSEL64N32:
+		return 10;
+	case SCMP_ARCH_PARISC:
+		return 11;
+	case SCMP_ARCH_PARISC64:
+		return 12;
+	case SCMP_ARCH_PPC:
+		return 13;
+	case SCMP_ARCH_PPC64:
+		return 14;
+	case SCMP_ARCH_PPC64LE:
+		return 15;
+	case SCMP_ARCH_S390:
+		return 16;
+	case SCMP_ARCH_S390X:
+		return 17;
+	case SCMP_ARCH_RISCV64:
+		return 18;
+	case SCMP_ARCH_SHEB:
+		return 19;
+	case SCMP_ARCH_SH:
+		return 20;
+	}
+
+	return -1;
+}
+
+#include <stdio.h>
+int const arch_get_range(uint32_t token,
+			 enum scmp_kver kver,
+			 const struct range **table,
+			 uint32_t * const table_sz)
+{
+	uint32_t arch_offset = _token_to_offset(token);
+	int ret = 0;
+
+	arch_offset = _token_to_offset(token);
+	// todo - error handling on bad arch name???
+
+	// todo -add a first valid kver enum or somethign
+	fprintf(stdout, "arch offset = %d kver offset = %d\n", arch_offset, kver - 99);
+	*table = range_table[arch_offset][kver - 99];
+	*table_sz = sizes_table[arch_offset][kver - 99];
+	return ret;
+
+#if 0
+	switch (token) {
+	case SCMP_ARCH_X86:
+		return -EINVAL;
+	case SCMP_ARCH_X86_64:
+		switch (kv) {
+		case SCMP_KV_V5_04:
+			*range_table = ranges_x86_64_SCMP_KV_5_04;
+			*table_sz = sizeof(ranges_x86_64_SCMP_KV_5_04) /
+				    sizeof(struct range);
+			return 0;
+		case SCMP_KV_V5_08:
+			*range_table = ranges_x86_64_SCMP_KV_5_08;
+			*table_sz = sizeof(ranges_x86_64_SCMP_KV_5_08) /
+				    sizeof(struct range);
+			return 0;
+#if 0
+			return ranges_x86_64_SCMP_KV_5_04;
+		case SCMP_KV_V5_05:
+			return ranges_x86_64_SCMP_KV_5_05;
+		case SCMP_KV_V5_06:
+			return ranges_x86_64_SCMP_KV_5_06;
+		case SCMP_KV_V5_07:
+			return ranges_x86_64_SCMP_KV_5_07;
+		case SCMP_KV_V5_08:
+			fprintf(stderr, "sizeof = %d\n", sizeof(ranges_x86_64_SCMP_KV_5_08));
+			return ranges_x86_64_SCMP_KV_5_08;
+		case SCMP_KV_V5_09:
+			return ranges_x86_64_SCMP_KV_5_09;
+		case SCMP_KV_V5_10:
+			return ranges_x86_64_SCMP_KV_5_10;
+		case SCMP_KV_V5_11:
+			return ranges_x86_64_SCMP_KV_5_11;
+		case SCMP_KV_V5_12:
+			return ranges_x86_64_SCMP_KV_5_12;
+		case SCMP_KV_V5_13:
+			return ranges_x86_64_SCMP_KV_5_13;
+		case SCMP_KV_V5_14:
+			return ranges_x86_64_SCMP_KV_5_14;
+		case SCMP_KV_V5_15:
+			return ranges_x86_64_SCMP_KV_5_15;
+		case SCMP_KV_V5_16:
+			return ranges_x86_64_SCMP_KV_5_16;
+		case SCMP_KV_V5_17:
+			return ranges_x86_64_SCMP_KV_5_17;
+		case SCMP_KV_V5_18:
+			return ranges_x86_64_SCMP_KV_5_18;
+#endif
+		default:
+			return -EINVAL;
+		}
+#if 0
+	case SCMP_ARCH_ARM:
+		return NULL;
+	case SCMP_ARCH_AARCH64:
+		return NULL;
+	case SCMP_ARCH_MIPS:
+		return NULL;
+	case SCMP_ARCH_MIPSEL:
+		return NULL;
+	case SCMP_ARCH_MIPS64:
+		return NULL;
+	case SCMP_ARCH_MIPSEL64:
+		return NULL;
+	case SCMP_ARCH_MIPS64N32:
+		return NULL;
+	case SCMP_ARCH_MIPSEL64N32:
+		return NULL;
+	case SCMP_ARCH_PARISC:
+		return NULL;
+	case SCMP_ARCH_PARISC64:
+		return NULL;
+	case SCMP_ARCH_PPC:
+		return NULL;
+	case SCMP_ARCH_PPC64:
+		return NULL;
+	case SCMP_ARCH_PPC64LE:
+		return NULL;
+	case SCMP_ARCH_S390:
+		return NULL;
+	case SCMP_ARCH_S390X:
+		return NULL;
+	case SCMP_ARCH_RISCV64:
+		return NULL;
+	case SCMP_ARCH_SHEB:
+		return NULL;
+	case SCMP_ARCH_SH:
+		return NULL;
+#endif
+	default:
+		return -EINVAL;
+	}
+#endif
 }

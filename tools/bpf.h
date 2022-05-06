@@ -114,6 +114,7 @@ typedef struct sock_filter bpf_instr_raw;
 #define BPF_JGT			0x20
 #define BPF_JGE			0x30
 #define BPF_JSET		0x40
+#define BPF_JLE 		0xb0
 
 #define BPF_SRC(code)		((code) & 0x08)
 #define BPF_K			0x00
